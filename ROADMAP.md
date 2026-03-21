@@ -384,6 +384,67 @@
 
 ---
 
+## ✅ Phase 39 — Webhook Event Bus & Retry Engine
+
+- [x] **Event Creation** — source, type, payload, idempotency key, method
+- [x] **Route Matching** — glob patterns (payment.*, push, *), source filtering
+- [x] **Filter Evaluation** — equals, not_equals, contains, starts_with, exists, in
+- [x] **Deduplication** — idempotency key lookup, fallback key generation
+- [x] **4 Retry Strategies** — fixed, exponential, linear, fibonacci
+- [x] **Dead Letter Queue** — after maxRetries exceeded, retryHistory tracking
+- [x] **Header Normalization** — signature extraction for GitHub/Stripe/Slack
+- [x] **Event Statistics** — delivery rate, avg retries, groupBySource/Type
+
+---
+
+## ✅ Phase 40 — Multi-language Code Node Runtime
+
+- [x] **6 Languages** — JavaScript, Python, Go, Ruby, PHP, Shell
+- [x] **Language Detection** — heuristic code pattern analysis
+- [x] **Security Validation** — per-language checks (eval, exec, subprocess, rm -rf)
+- [x] **Boilerplate Wrapping** — user code in language-appropriate template
+- [x] **Docker Runtime Spec** — --network=none, --memory, --cpus, stop-timeout
+- [x] **Package Validation** — blocks path traversal and suspicious names
+- [x] **Install Commands** — npm/pip/gem/composer/go mod builders
+
+---
+
+## ✅ Phase 41 — White-labeling & Embed Mode
+
+- [x] **Brand Config** — hex colors, typography, logo (light/dark), color scheme
+- [x] **Config Validation** — hex format, URL validity, domain allowlist, no scripts
+- [x] **CSS Theme Generation** — CSS custom properties from brand config
+- [x] **Dark Mode Overrides** — [data-theme=dark] CSS block
+- [x] **Embed URL Builder** — tenant isolation, readOnly, hideToolbar flags
+- [x] **iframe Snippet** — ready-to-paste HTML with custom dimensions
+- [x] **Origin Allowlist** — wildcard subdomain matching (*.acme.com)
+
+---
+
+## ✅ Phase 42 — Live Collaboration & Presence
+
+- [x] **Session Management** — join/leave with color assignment, rejoin support
+- [x] **User Presence** — cursor position, selected nodes, status tracking
+- [x] **Idle Detection** — auto-idle after configurable threshold
+- [x] **Node Locking** — TTL-based locks, acquire/release, expired lock cleanup
+- [x] **Edit History** — bounded operation log (trim to maxHistorySize)
+- [x] **Conflict Detection** — concurrent config changes, delete-while-editing
+- [x] **Session Summary** — active users, idle count, active locks, recent ops
+
+---
+
+## ✅ Phase 43 — Data Residency & Compliance
+
+- [x] **Data Inventory** — 8 categories with classification, PII flag, retention days
+- [x] **Region Metadata** — 8 regions with country, GDPR flag
+- [x] **Residency Policy** — allowed/restricted categories, cross-border transfer
+- [x] **Retention Policy** — expiry check, days remaining, onExpiry actions
+- [x] **Data Subject Requests** — GDPR Art. 15-20: access/deletion/portability/etc.
+- [x] **Consent Management** — grant, revoke, expiry, version tracking
+- [x] **GDPR Compliance Check** — EU region, PII consent, restricted categories
+
+---
+
 ## 📊 Progress Summary
 
 | Phase | Status | Highlights |
@@ -411,6 +472,10 @@
 | Phase 36 — SSO / SAML / OIDC | ✅ Done | SAML parser, OIDC flow, PKCE, connection routing (54 tests) |
 | Phase 37 — External Secrets | ✅ Done | Vault/AWS/GCP/Azure, URI parsing, rotation, interpolation (60 tests) |
 | Phase 38 — Quota Manager | ✅ Done | 4-tier plans, 9 resources, soft/hard limits, health score (47 tests) |
-| **Total Tests** | **1417** | **65 test files** |
+| Phase 39 — Webhook Event Bus | ✅ Done | Route matching, deduplication, 4 retry strategies, DLQ (48 tests) |
+| Phase 40 — Multi-lang Runtime | ✅ Done | 6 languages, Docker spec, security validation (46 tests) |
+| Phase 41 — White-labeling | ✅ Done | Brand colors, CSS themes, embed URL, iframe snippet (38 tests) |
+| Phase 42 — Live Collaboration | ✅ Done | Presence, node locks, edit history, conflict detection (38 tests) |
+| Phase 43 — Data Residency | ✅ Done | GDPR compliance, retention, DSR, consent management (42 tests) |
+| **Total Tests** | **1629** | **70 test files** |
 | MCP HTTP Endpoint | ⏳ Planned | Live MCP server for Claude/Cursor |
-| White-labeling | ⏳ Planned | Embed mode, custom branding |
