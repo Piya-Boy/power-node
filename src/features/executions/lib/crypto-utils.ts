@@ -6,7 +6,7 @@ import crypto from "crypto";
  */
 
 export type HashAlgorithm = "md5" | "sha1" | "sha256" | "sha512";
-export type Encoding = "hex" | "base64" | "base64url" | "binary";
+export type Encoding = "hex" | "base64" | "base64url";
 
 /**
  * Hash a string using the given algorithm.
@@ -16,7 +16,7 @@ export function hash(
   algorithm: HashAlgorithm = "sha256",
   encoding: Encoding = "hex",
 ): string {
-  return crypto.createHash(algorithm).update(input).digest(encoding as BufferEncoding);
+  return crypto.createHash(algorithm).update(input).digest(encoding as "hex" | "base64" | "base64url");
 }
 
 /**
@@ -28,7 +28,7 @@ export function hmac(
   algorithm: HashAlgorithm = "sha256",
   encoding: Encoding = "hex",
 ): string {
-  return crypto.createHmac(algorithm, secret).update(input).digest(encoding as BufferEncoding);
+  return crypto.createHmac(algorithm, secret).update(input).digest(encoding as "hex" | "base64" | "base64url");
 }
 
 /**
