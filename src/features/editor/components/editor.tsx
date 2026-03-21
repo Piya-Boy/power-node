@@ -30,9 +30,10 @@ import { NodeLibrary, useNodeDrop } from './node-library';
 import { NodeConfigPanel } from './node-config-panel';
 import { useUndoRedo } from '../hooks/use-undo-redo';
 import { useKeyboardShortcuts } from '../hooks/use-keyboard-shortcuts';
-import { PanelLeftIcon, PanelLeftCloseIcon, UndoIcon, RedoIcon } from 'lucide-react';
+import { PanelLeftIcon, PanelLeftCloseIcon, UndoIcon, RedoIcon, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { AiWorkflowDialog } from '@/features/ai-workflow/ai-workflow-dialog';
 
 export const EditorLoading = () => {
   return <LoadingView message="Loading editor..." />;
@@ -54,6 +55,7 @@ export const Editor = ({ workflowId }: { workflowId: string }) => {
   const [nodes, setNodes] = useState<Node[]>(workflow.nodes);
   const [edges, setEdges] = useState<Edge[]>(workflow.edges);
   const [showLibrary, setShowLibrary] = useState(true);
+  const [showAiDialog, setShowAiDialog] = useState(false);
 
   const { undo, redo, canUndo, canRedo, takeSnapshot } = useUndoRedo(
     nodes, edges, setNodes, setEdges,
@@ -224,8 +226,26 @@ export const Editor = ({ workflowId }: { workflowId: string }) => {
                 <TooltipContent>Redo (Ctrl+Y)</TooltipContent>
               </Tooltip>
             </TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  size="icon"
+                  variant="outline"
+                  className="bg-background"
+                  onClick={() => setShowAiDialog(true)}
+                >
+                  <Sparkles className="size-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Generate with AI</TooltipContent>
+            </Tooltip>
             <AddNodeButton />
           </Panel>
+          <AiWorkflowDialog
+            open={showAiDialog}
+            onOpenChange={setShowAiDialog}
+            apiKey=""
+          />
           {hasManualTrigger && (
             <Panel position="bottom-center">
               <ExecuteWorkflowButton workflowId={workflowId} />
