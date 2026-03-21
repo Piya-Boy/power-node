@@ -50,6 +50,26 @@ describe("executorRegistry", () => {
     }
   });
 
+  it("should have all Phase 3 integration types registered", () => {
+    const phase3Types = [
+      NodeType.TELEGRAM,
+      NodeType.EMAIL_SMTP,
+      NodeType.NOTION,
+      NodeType.GOOGLE_SHEETS,
+      NodeType.GOOGLE_CALENDAR,
+      NodeType.GOOGLE_DRIVE,
+      NodeType.GMAIL,
+      NodeType.GITHUB,
+      NodeType.GRAPHQL,
+      NodeType.POSTGRESQL_QUERY,
+      NodeType.MYSQL_QUERY,
+    ];
+
+    for (const type of phase3Types) {
+      expect(executorRegistry[type], `Missing Phase 3 executor: ${type}`).toBeDefined();
+    }
+  });
+
   it("noop executors should pass through context unchanged", async () => {
     const noopTypes = [
       NodeType.STICKY_NOTE,
@@ -70,6 +90,28 @@ describe("executorRegistry", () => {
         publish: (() => {}) as any,
       });
       expect(result, `Noop executor for ${type} should pass through context`).toEqual(context);
+    }
+  });
+
+  it("Phase 3 executors should not be noop", () => {
+    const phase3Types = [
+      NodeType.TELEGRAM,
+      NodeType.EMAIL_SMTP,
+      NodeType.NOTION,
+      NodeType.GOOGLE_SHEETS,
+      NodeType.GITHUB,
+      NodeType.GRAPHQL,
+      NodeType.POSTGRESQL_QUERY,
+      NodeType.MYSQL_QUERY,
+    ];
+
+    // These should have real executor functions, not the noop executor
+    const noopExecutor = executorRegistry[NodeType.STICKY_NOTE];
+    for (const type of phase3Types) {
+      expect(
+        executorRegistry[type],
+        `Phase 3 executor ${type} should not be noop`,
+      ).not.toBe(noopExecutor);
     }
   });
 });

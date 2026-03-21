@@ -94,6 +94,14 @@ enum CredentialType {
   OPENAI
   ANTHROPIC
   GEMINI
+  // Phase 3: Integrations
+  TELEGRAM
+  NOTION
+  GOOGLE
+  GITHUB_TOKEN
+  SMTP
+  POSTGRES
+  MYSQL
 }
 
 model Workflow {
@@ -145,6 +153,21 @@ enum NodeType {
   CRYPTO
   MARKDOWN_HTML
   COMPRESS
+  // Phase 3: Integrations - Communication
+  TELEGRAM
+  EMAIL_SMTP
+  // Phase 3: Integrations - Productivity
+  NOTION
+  GOOGLE_SHEETS
+  GOOGLE_CALENDAR
+  GOOGLE_DRIVE
+  GMAIL
+  // Phase 3: Integrations - Developer Tools
+  GITHUB
+  GRAPHQL
+  // Phase 3: Integrations - Database
+  POSTGRESQL_QUERY
+  MYSQL_QUERY
 }
 
 model Node {

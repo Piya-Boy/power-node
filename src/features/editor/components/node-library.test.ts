@@ -6,7 +6,7 @@ type NodeTypeOption = {
   type: NodeType;
   label: string;
   description: string;
-  category: "trigger" | "execution" | "logic" | "data" | "utility";
+  category: "trigger" | "execution" | "logic" | "data" | "utility" | "integration";
 };
 
 // Mirror the data from node-library.tsx for testing
@@ -26,6 +26,20 @@ const executionNodes: NodeTypeOption[] = [
   { type: NodeType.SLACK, label: "Slack", description: "Send a message to Slack", category: "execution" },
 ];
 
+const integrationNodes: NodeTypeOption[] = [
+  { type: NodeType.TELEGRAM, label: "Telegram", description: "Send messages via Telegram Bot", category: "integration" },
+  { type: NodeType.EMAIL_SMTP, label: "Email (SMTP)", description: "Send emails via SMTP", category: "integration" },
+  { type: NodeType.NOTION, label: "Notion", description: "Read/write Notion databases", category: "integration" },
+  { type: NodeType.GOOGLE_SHEETS, label: "Google Sheets", description: "Read/write Google Sheets", category: "integration" },
+  { type: NodeType.GOOGLE_CALENDAR, label: "Google Calendar", description: "Manage Google Calendar events", category: "integration" },
+  { type: NodeType.GOOGLE_DRIVE, label: "Google Drive", description: "Manage Google Drive files", category: "integration" },
+  { type: NodeType.GMAIL, label: "Gmail", description: "Send/read emails via Gmail", category: "integration" },
+  { type: NodeType.GITHUB, label: "GitHub", description: "Manage repos, issues, PRs", category: "integration" },
+  { type: NodeType.GRAPHQL, label: "GraphQL", description: "Execute GraphQL queries", category: "integration" },
+  { type: NodeType.POSTGRESQL_QUERY, label: "PostgreSQL", description: "Execute SQL on PostgreSQL", category: "integration" },
+  { type: NodeType.MYSQL_QUERY, label: "MySQL", description: "Execute SQL on MySQL", category: "integration" },
+];
+
 const logicNodes: NodeTypeOption[] = [
   { type: NodeType.IF_CONDITION, label: "IF Condition", description: "Branch based on a condition", category: "logic" },
   { type: NodeType.SWITCH, label: "Switch", description: "Route based on value", category: "logic" },
@@ -43,7 +57,7 @@ const utilityNodes: NodeTypeOption[] = [
   { type: NodeType.STICKY_NOTE, label: "Sticky Note", description: "Add a note or comment to the canvas", category: "utility" },
 ];
 
-const allNodes = [...triggerNodes, ...executionNodes, ...logicNodes, ...dataNodes, ...utilityNodes];
+const allNodes = [...triggerNodes, ...executionNodes, ...integrationNodes, ...logicNodes, ...dataNodes, ...utilityNodes];
 
 function filterNodes(search: string): NodeTypeOption[] {
   if (!search) return allNodes;
@@ -106,12 +120,14 @@ describe("Node Library Filtering", () => {
   it("should categorize nodes correctly", () => {
     const triggers = allNodes.filter((n) => n.category === "trigger");
     const executions = allNodes.filter((n) => n.category === "execution");
+    const integrations = allNodes.filter((n) => n.category === "integration");
     const logic = allNodes.filter((n) => n.category === "logic");
     const data = allNodes.filter((n) => n.category === "data");
     const utility = allNodes.filter((n) => n.category === "utility");
 
     expect(triggers.length).toBe(5);
     expect(executions.length).toBe(5);
+    expect(integrations.length).toBe(11);
     expect(logic.length).toBe(4);
     expect(data.length).toBe(3);
     expect(utility.length).toBe(1);
@@ -122,6 +138,47 @@ describe("Node Library Filtering", () => {
     expect(result).toEqual(
       expect.arrayContaining([
         expect.objectContaining({ type: NodeType.CODE }),
+      ]),
+    );
+  });
+
+  // Phase 3 Integration tests
+  it("should find Telegram node", () => {
+    const result = filterNodes("Telegram");
+    expect(result.length).toBe(1);
+    expect(result[0].type).toBe(NodeType.TELEGRAM);
+  });
+
+  it("should find multiple Google integrations", () => {
+    const result = filterNodes("Google");
+    expect(result.length).toBeGreaterThanOrEqual(4); // Sheets, Calendar, Drive, Form
+    const types = result.map((n) => n.type);
+    expect(types).toContain(NodeType.GOOGLE_SHEETS);
+    expect(types).toContain(NodeType.GOOGLE_CALENDAR);
+    expect(types).toContain(NodeType.GOOGLE_DRIVE);
+  });
+
+  it("should find database nodes by SQL", () => {
+    const result = filterNodes("SQL");
+    expect(result.length).toBe(2);
+    const types = result.map((n) => n.type);
+    expect(types).toContain(NodeType.POSTGRESQL_QUERY);
+    expect(types).toContain(NodeType.MYSQL_QUERY);
+  });
+
+  it("should find email-related nodes", () => {
+    const result = filterNodes("email");
+    expect(result.length).toBeGreaterThanOrEqual(2); // SMTP and Gmail
+    const types = result.map((n) => n.type);
+    expect(types).toContain(NodeType.EMAIL_SMTP);
+    expect(types).toContain(NodeType.GMAIL);
+  });
+
+  it("should find GitHub by searching repos", () => {
+    const result = filterNodes("repos");
+    expect(result).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ type: NodeType.GITHUB }),
       ]),
     );
   });

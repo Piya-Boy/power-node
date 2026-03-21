@@ -29,6 +29,14 @@ import {
   LockIcon,
   FileTextIcon,
   ArchiveIcon,
+  SendIcon,
+  MailIcon,
+  BookOpenIcon,
+  TableIcon,
+  CalendarIcon as CalendarIcon2,
+  HardDriveIcon,
+  BracesIcon,
+  DatabaseIcon,
 } from "lucide-react";
 import { toast } from "sonner";
 import { NodeType } from "@/generated/prisma";
@@ -41,7 +49,7 @@ export type NodeTypeOption = {
   label: string;
   description: string;
   icon: React.ComponentType<{ className?: string }> | string;
-  category: "trigger" | "execution" | "logic" | "data" | "utility";
+  category: "trigger" | "execution" | "logic" | "data" | "utility" | "integration";
 };
 
 const triggerNodes: NodeTypeOption[] = [
@@ -151,6 +159,20 @@ const dataNodes: NodeTypeOption[] = [
   { type: NodeType.COMPRESS, label: "Compress", description: "Zip/unzip files", icon: ArchiveIcon, category: "data" },
 ];
 
+const integrationNodes: NodeTypeOption[] = [
+  { type: NodeType.TELEGRAM, label: "Telegram", description: "Send messages via Telegram Bot", icon: SendIcon, category: "integration" },
+  { type: NodeType.EMAIL_SMTP, label: "Email (SMTP)", description: "Send emails via SMTP", icon: MailIcon, category: "integration" },
+  { type: NodeType.NOTION, label: "Notion", description: "Read/write Notion databases", icon: BookOpenIcon, category: "integration" },
+  { type: NodeType.GOOGLE_SHEETS, label: "Google Sheets", description: "Read/write Google Sheets", icon: TableIcon, category: "integration" },
+  { type: NodeType.GOOGLE_CALENDAR, label: "Google Calendar", description: "Manage Google Calendar events", icon: CalendarIcon2, category: "integration" },
+  { type: NodeType.GOOGLE_DRIVE, label: "Google Drive", description: "Manage Google Drive files", icon: HardDriveIcon, category: "integration" },
+  { type: NodeType.GMAIL, label: "Gmail", description: "Send/read emails via Gmail", icon: MailIcon, category: "integration" },
+  { type: NodeType.GITHUB, label: "GitHub", description: "Manage repos, issues, PRs", icon: "/logos/github.svg", category: "integration" },
+  { type: NodeType.GRAPHQL, label: "GraphQL", description: "Execute GraphQL queries", icon: BracesIcon, category: "integration" },
+  { type: NodeType.POSTGRESQL_QUERY, label: "PostgreSQL", description: "Execute SQL on PostgreSQL", icon: DatabaseIcon, category: "integration" },
+  { type: NodeType.MYSQL_QUERY, label: "MySQL", description: "Execute SQL on MySQL", icon: DatabaseIcon, category: "integration" },
+];
+
 const utilityNodes: NodeTypeOption[] = [
   {
     type: NodeType.STICKY_NOTE,
@@ -161,7 +183,7 @@ const utilityNodes: NodeTypeOption[] = [
   },
 ];
 
-const allNodes = [...triggerNodes, ...executionNodes, ...logicNodes, ...dataNodes, ...utilityNodes];
+const allNodes = [...triggerNodes, ...executionNodes, ...integrationNodes, ...logicNodes, ...dataNodes, ...utilityNodes];
 
 function NodeIcon({ icon, label }: { icon: NodeTypeOption["icon"]; label: string }) {
   if (typeof icon === "string") {
@@ -213,6 +235,7 @@ export function NodeLibrary({ className }: NodeLibraryProps) {
 
   const filteredTriggers = filtered.filter((n) => n.category === "trigger");
   const filteredExecutions = filtered.filter((n) => n.category === "execution");
+  const filteredIntegrations = filtered.filter((n) => n.category === "integration");
   const filteredLogic = filtered.filter((n) => n.category === "logic");
   const filteredData = filtered.filter((n) => n.category === "data");
   const filteredUtilities = filtered.filter((n) => n.category === "utility");
@@ -253,6 +276,19 @@ export function NodeLibrary({ className }: NodeLibraryProps) {
               <DraggableNodeItem key={node.type} node={node} />
             ))}
           </div>
+        )}
+        {filteredIntegrations.length > 0 && (
+          <>
+            <Separator className="my-1" />
+            <div className="px-3 pb-2">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1 px-3">
+                Integrations
+              </p>
+              {filteredIntegrations.map((node) => (
+                <DraggableNodeItem key={node.type} node={node} />
+              ))}
+            </div>
+          </>
         )}
         {filteredLogic.length > 0 && (
           <>

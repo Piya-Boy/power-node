@@ -31,6 +31,19 @@ import { CodeNode } from "@/features/executions/components/code/node";
 import { TransformNode } from "@/features/executions/components/transform/node";
 import { SortNode } from "@/features/executions/components/sort/node";
 
+// Phase 3: Integrations
+import { TelegramNode } from "@/features/executions/components/telegram/node";
+import { EmailSmtpNode } from "@/features/executions/components/email-smtp/node";
+import { NotionNode } from "@/features/executions/components/notion/node";
+import { GoogleSheetsNode } from "@/features/executions/components/google-sheets/node";
+import { GoogleCalendarNode } from "@/features/executions/components/google-calendar/node";
+import { GoogleDriveNode } from "@/features/executions/components/google-drive/node";
+import { GmailNode } from "@/features/executions/components/gmail/node";
+import { GitHubNode } from "@/features/executions/components/github/node";
+import { GraphQLNode } from "@/features/executions/components/graphql/node";
+import { PostgresqlNode } from "@/features/executions/components/postgresql-query/node";
+import { MysqlNode } from "@/features/executions/components/mysql-query/node";
+
 export const nodeComponents = {
   [NodeType.INITIAL]: InitialNode,
   [NodeType.HTTP_REQUEST]: HttpRequestNode,
@@ -66,6 +79,18 @@ export const nodeComponents = {
   [NodeType.CRYPTO]: TransformNode,
   [NodeType.MARKDOWN_HTML]: TransformNode,
   [NodeType.COMPRESS]: TransformNode,
+  // Phase 3: Integrations
+  [NodeType.TELEGRAM]: TelegramNode,
+  [NodeType.EMAIL_SMTP]: EmailSmtpNode,
+  [NodeType.NOTION]: NotionNode,
+  [NodeType.GOOGLE_SHEETS]: GoogleSheetsNode,
+  [NodeType.GOOGLE_CALENDAR]: GoogleCalendarNode,
+  [NodeType.GOOGLE_DRIVE]: GoogleDriveNode,
+  [NodeType.GMAIL]: GmailNode,
+  [NodeType.GITHUB]: GitHubNode,
+  [NodeType.GRAPHQL]: GraphQLNode,
+  [NodeType.POSTGRESQL_QUERY]: PostgresqlNode,
+  [NodeType.MYSQL_QUERY]: MysqlNode,
 } as const satisfies NodeTypes;
 
 export type RegisteredNodeType = keyof typeof nodeComponents;
