@@ -3,13 +3,15 @@ import prisma from "@/lib/db";
 import type { Node, Edge } from "@xyflow/react";
 import { createTRPCRouter, premiumProcedure, protectedProcedure } from "@/trpc/init";
 import z from "zod";
+import { TRPCError } from "@trpc/server";
 import { PAGINATION } from "@/config/constants";
 import { NodeType } from "@/generated/prisma";
 import { inngest } from "@/inngest/client";
 import { sendWorkflowExecution } from "@/inngest/utils";
 import { generateApiKey } from "@/features/workflows/lib/api-key";
 import { generateWebhookSecret, getWebhookUrl } from "@/features/workflows/lib/webhook-url";
-import { exportWorkflow } from "@/features/workflows/lib/export-import";
+import { exportWorkflow, validateImport } from "@/features/workflows/lib/export-import";
+import { createId } from "@paralleldrive/cuid2";
 
 export const workflowsRouter = createTRPCRouter({
   execute: protectedProcedure
@@ -262,6 +264,113 @@ export const workflowsRouter = createTRPCRouter({
     .mutation(({ ctx, input }) => {
       return prisma.apiKey.delete({
         where: { id: input.id, userId: ctx.auth.user.id },
+      });
+    }),
+  duplicate: protectedProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const source = await prisma.workflow.findUniqueOrThrow({
+        where: { id: input.id, userId: ctx.auth.user.id },
+        include: { nodes: true, connections: true },
+      });
+
+      const idMap = new Map<string, string>();
+
+      return prisma.$transaction(async (tx) => {
+        const newWorkflow = await tx.workflow.create({
+          data: {
+            name: `${source.name} (copy)`,
+            description: source.description,
+            tags: source.tags,
+            userId: ctx.auth.user.id,
+          },
+        });
+
+        // Create nodes with new IDs
+        for (const node of source.nodes) {
+          const newId = createId();
+          idMap.set(node.id, newId);
+          await tx.node.create({
+            data: {
+              id: newId,
+              workflowId: newWorkflow.id,
+              name: node.name,
+              type: node.type,
+              position: node.position as object,
+              data: node.data as object,
+              credentialId: node.credentialId,
+            },
+          });
+        }
+
+        // Create connections with remapped IDs
+        for (const conn of source.connections) {
+          await tx.connection.create({
+            data: {
+              workflowId: newWorkflow.id,
+              fromNodeId: idMap.get(conn.fromNodeId) || conn.fromNodeId,
+              toNodeId: idMap.get(conn.toNodeId) || conn.toNodeId,
+              fromOutput: conn.fromOutput,
+              toInput: conn.toInput,
+            },
+          });
+        }
+
+        return newWorkflow;
+      });
+    }),
+  importWorkflow: protectedProcedure
+    .input(z.object({ data: z.unknown() }))
+    .mutation(async ({ ctx, input }) => {
+      const validation = validateImport(input.data);
+      if (!validation.valid || !validation.workflow) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: `Invalid workflow data: ${validation.errors.join(", ")}`,
+        });
+      }
+
+      const wf = validation.workflow;
+      const idMap = new Map<string, string>();
+
+      return prisma.$transaction(async (tx) => {
+        const newWorkflow = await tx.workflow.create({
+          data: {
+            name: wf.workflow.name,
+            description: wf.workflow.description,
+            tags: wf.workflow.tags,
+            userId: ctx.auth.user.id,
+          },
+        });
+
+        for (const node of wf.nodes) {
+          const newId = createId();
+          idMap.set(node.id, newId);
+          await tx.node.create({
+            data: {
+              id: newId,
+              workflowId: newWorkflow.id,
+              name: node.name || node.type,
+              type: node.type as NodeType,
+              position: node.position as object,
+              data: (node.data || {}) as object,
+            },
+          });
+        }
+
+        for (const conn of wf.connections) {
+          await tx.connection.create({
+            data: {
+              workflowId: newWorkflow.id,
+              fromNodeId: idMap.get(conn.fromNodeId) || conn.fromNodeId,
+              toNodeId: idMap.get(conn.toNodeId) || conn.toNodeId,
+              fromOutput: conn.fromOutput,
+              toInput: conn.toInput,
+            },
+          });
+        }
+
+        return newWorkflow;
       });
     }),
   getMany: protectedProcedure
