@@ -554,6 +554,61 @@
 
 ---
 
+## ✅ Phase 51 — Credential Encryption Utils
+
+- [x] **encodePayload / decodePayload** — serialize EncryptedPayload to/from base64 JSON
+- [x] **validateEncryptedPayload** — structural validation (algorithm, iv hex, version, authTag for AEAD, kdf+salt)
+- [x] **maskCredential** — show first/last N chars, mask middle with ***
+- [x] **maskCredentialMap** — mask all values in a Record<string, string>
+- [x] **detectCredentialType** — detect jwt / basic-auth / bearer / oauth-token / api-key / unknown
+- [x] **generateKeyId** — `key_` + 16 random hex chars
+- [x] **createKeyRotationPlan** — create plan with pending status
+- [x] **updateRotationProgress** — update migrated count, set in-progress
+- [x] **completeRotation / failRotation** — set final status + completedAt
+- [x] **isRotationComplete / getRotationProgressPercent** — check/measure progress
+- [x] **createVault** — create CredentialVault with defaults
+- [x] **validateVaultName** — alphanumeric+hyphens, 3–64 chars
+- [x] **summarizeVaults** — total/byAlgorithm/totalEntries (63 tests)
+
+---
+
+## ✅ Phase 52 — Execution Queue Prioritization
+
+- [x] **createQueuedExecution** — create with defaults (priority=normal, retryCount=0)
+- [x] **priorityScore** — critical=5, high=4, normal=3, low=2, background=1
+- [x] **comparePriority** — sort comparator (higher priority first, then earlier enqueue)
+- [x] **sortQueue** — fifo / priority / fair-share / weighted-round-robin strategies
+- [x] **canEnqueue** — check queue capacity against maxQueueSize
+- [x] **canStart** — check maxConcurrent + per-team quota
+- [x] **getNextBatch** — get next ready items respecting concurrency limits
+- [x] **estimateWaitTime** — ms until item would start based on position and avg duration
+- [x] **computeQueueStats** — total/pending/running/byPriority/byTeam/avgWait/drainTime
+- [x] **filterByTeam / filterByPriority / filterReady** — queue filters
+- [x] **buildFairShareGroups** — group by teamId for fair-share scheduling
+- [x] **applyWeightedRoundRobin** — interleave teams by weight
+- [x] **isStuck** — detect execution running beyond threshold
+- [x] **formatQueueStats** — human-readable stats string (53 tests)
+
+---
+
+## ✅ Phase 53 — Notification Template Engine
+
+- [x] **createTemplate** — create NotificationTemplate with defaults (severity=info, enabled=true, version=1.0.0)
+- [x] **renderNotification** — substitute {{variables}}, track missing, set renderedAt
+- [x] **renderSubject** — render subject line only
+- [x] **validateTemplate** — validate id/name/channel/trigger/severity/body/version
+- [x] **detectVariables** — extract {{var}} from body + subject (deduplicated)
+- [x] **getDefaultTemplate** — built-in defaults for common trigger+channel combos
+- [x] **shouldNotify** — check preference enabled + trigger match + severity threshold
+- [x] **filterByPreferences** — filter templates against user preferences
+- [x] **groupByChannel / groupByTrigger** — group templates by key dimension
+- [x] **formatSlackBlocks** — Slack Block Kit array with severity emoji
+- [x] **formatEmailHtml** — minimal HTML email with escaped content
+- [x] **severityToEmoji** — info=ℹ️, warning=⚠️, error=❌, critical=🚨
+- [x] **computeTemplateStats** — total/byChannel/byTrigger/bySeverity/enabled (61 tests)
+
+---
+
 ## 📊 Progress Summary
 
 | Phase | Status | Highlights |
@@ -593,5 +648,8 @@
 | Phase 48 — Rate Limiter Engine | ✅ Done | Fixed/sliding/token-bucket algorithms, 5 scopes, headers (70 tests) |
 | Phase 49 — Workflow Diff & Version Compare | ✅ Done | diffNodes/edges/settings/snapshots, invert/merge/apply/format (78 tests) |
 | Phase 50 — AI Prompt Templates | ✅ Done | Create/render/validate templates, variables, token estimate (71 tests) |
-| **Total Tests** | **2046** | **76 test files** |
+| Phase 51 — Credential Encryption Utils | ✅ Done | encode/decode payload, mask, detect type, key rotation, vault (63 tests) |
+| Phase 52 — Execution Queue Prioritization | ✅ Done | Priority scoring, FIFO/fair-share/WRR strategies, quota, stuck detection (53 tests) |
+| Phase 53 — Notification Template Engine | ✅ Done | Render/validate templates, Slack/email formatters, preferences, stats (61 tests) |
+| **Total Tests** | **2223** | **79 test files** |
 | MCP HTTP Endpoint | ⏳ Planned | Live MCP server for Claude/Cursor |
