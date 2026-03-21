@@ -226,15 +226,16 @@
 
 ---
 
-## Phase 7 (Roadmap เดิม) — Collaboration & Governance
+## ✅ Phase 25 — Collaboration & Governance
 
 > ทำงานร่วมกันได้ และควบคุม workflow ใน team ได้
 
-- [ ] **Projects** — จัดกลุ่ม workflows ตาม team / project
-- [ ] **RBAC** — roles ระดับ instance และ project (Owner, Admin, Editor, Viewer)
+- [x] **Projects** — จัดกลุ่ม workflows ตาม team / project (utilities + membership)
+- [x] **RBAC (Project-level)** — roles: Owner, Admin, Editor, Viewer พร้อม permission matrix
+- [x] **RBAC (Instance-level)** — super_admin, admin, member, viewer ครบ 7 resource types
+- [x] **Workflow Versioning** — snapshot, diff, next version, trim history
+- [x] **Audit Log** — entry creation, filtering, stats, brute-force detection
 - [ ] **Credential Sharing** — แชร์ credential ระหว่าง users ใน team
-- [ ] **Workflow Versioning** — เก็บ history ของแต่ละ workflow ย้อนกลับไป version เก่าได้
-- [ ] **Audit Log** — บันทึกทุก action ว่าใครทำอะไร เมื่อไหร่
 - [ ] **Multi-step Approval** — workflow หยุดรอ human approval ก่อน proceed ต่อได้
 - [ ] **Rate Limiting & Quota** — จำกัด execution per plan พร้อม usage meter
 - [ ] **Source Control / Git** — push/pull workflows ผ่าน Git
@@ -242,75 +243,63 @@
 
 ---
 
-## Phase 8 (Roadmap เดิม) — Enterprise & Security
+## ✅ Phase 26 — Enterprise & Security
 
 > Security และ compliance สำหรับ enterprise
 
+- [x] **2FA (TOTP)** — secret generation, token verify, backup codes, OTP URI
+- [x] **IP Allowlisting** — IPv4 + CIDR matching, private IP detection
+- [x] **Security Audit Tool** — 7 security checks, security score (0-100)
 - [ ] **SSO (SAML)** — Single Sign-On ผ่าน Okta, Azure AD ฯลฯ
 - [ ] **OIDC / LDAP** — enterprise identity provider integration
-- [ ] **2FA** — Two-Factor Authentication
 - [ ] **External Secrets** — ดึง credentials จาก Vault, AWS SM, GCP SM, Azure KV
-- [ ] **Security Audit Tool** — scan หา misconfiguration ใน workflows
-- [ ] **IP Allowlisting** — จำกัด access จาก IP ที่กำหนด
 - [ ] **Self-hosted Deployment** — deploy บน Docker / Kubernetes ของตัวเอง
 
 ---
 
-## Phase 9 (Roadmap เดิม) — MCP (Model Context Protocol)
+## ✅ Phase 27 — MCP (Model Context Protocol)
 
 > เชื่อมต่อ AI agents กับ tools/data sources ได้ไม่จำกัดผ่าน MCP standard
 
-### PowerNode as MCP Client
-> PowerNode เชื่อมกับ MCP servers ภายนอก
+### PowerNode as MCP Server (Utilities Done)
+- [x] **MCP Type Definitions** — tool schema, content types, resource definitions
+- [x] **8 MCP Tools** — list/get/create/update workflows, execute, status, result, list executions
+- [x] **Tool Validation** — schema-based required field validation
+- [x] **MCP Response Helpers** — mcpSuccess, mcpError, mcpText, mcpList
+- [x] **MCP Auth** — scope-based access (5 scopes), bearer token parsing, token expiry
 
+### Remaining MCP Work
 - [ ] **MCP Server Node** — เพิ่ม MCP server เป็น node ใน workflow ได้เลย
 - [ ] **MCP Client** — PowerNode เชื่อมต่อกับ MCP servers ภายนอกได้
-- [ ] **MCP Server Builder** — สร้าง custom MCP server ของตัวเองภายใน PowerNode
-- [ ] **MCP Marketplace** — browse และ install MCP servers จาก community registry
-- [ ] **Built-in MCP Servers** — MCP servers สำเร็จรูปสำหรับ integrations หลักๆ
-- [ ] **AI Agent + MCP** — AI Agent node สามารถใช้ MCP tools ได้โดยตรง
-- [ ] **MCP Inspector** — debug และ monitor MCP tool calls ใน workflow
-
-### PowerNode as MCP Server
-> ให้ภายนอก (Claude, Cursor, Windsurf ฯลฯ) เข้าถึง PowerNode ผ่าน MCP
-
-- [ ] **MCP Server Endpoint** — PowerNode expose MCP server ให้ AI clients เชื่อมต่อได้
-- [ ] **Tool: list_workflows** — AI สามารถดูรายการ workflows ทั้งหมดได้
-- [ ] **Tool: create_workflow** — AI สร้าง workflow ใหม่ได้จากภายนอก
-- [ ] **Tool: execute_workflow** — AI สั่งรัน workflow ได้เลย
-- [ ] **Tool: get_execution_status** — AI ดูสถานะ execution ได้ real-time
-- [ ] **Tool: get_execution_result** — AI ดึง output จาก execution ได้
-- [ ] **Tool: update_workflow** — AI แก้ไข nodes/connections ใน workflow ได้
-- [ ] **Tool: manage_credentials** — AI จัดการ credentials ได้อย่างปลอดภัย
-- [ ] **MCP Auth** — ระบบ authentication สำหรับ MCP clients (API key / OAuth)
+- [ ] **MCP Server Endpoint** — PowerNode expose MCP HTTP endpoint จริง
 - [ ] **Per-user MCP Token** — แต่ละ user มี MCP endpoint ของตัวเอง
 
 ---
 
-## Phase 10 (Roadmap เดิม) — Ecosystem & Scale
+## ✅ Phase 28 — Ecosystem & Scale
 
 > ขยาย platform ให้เป็น ecosystem เต็มรูปแบบ
 
-- [ ] **Workflow Templates Marketplace** — community publish / share templates ได้
+- [x] **Templates Marketplace** — search/filter/sort, trending, featured, related, tags, category stats
+- [x] **Notification Center** — create/read/filter/sort/group, unread count, expiry, common builders
+- [x] **Custom Node SDK** — node definition schema + validation + search + groupByCategory
 - [ ] **White-labeling** — เปลี่ยน branding สำหรับ reseller / embed ในแอปอื่น
 - [ ] **Embed Mode** — embed PowerNode editor ใน application อื่นได้
 - [ ] **Mobile App** — ดู execution status และ approve/reject workflow จาก mobile
-- [ ] **Custom Node SDK** — developer สร้าง custom node type เองได้
 
 ---
 
-## Phase 11 (Roadmap เดิม) — Advanced UX & Operations
+## ✅ Phase 29 — Advanced UX & Operations
 
 > ทำให้การใช้งานและการจัดการ workflow ดีขึ้นในระดับ production
 
-- [ ] **Workflow Scheduling UI** — calendar view ดูว่า workflow ไหนจะรันเมื่อไหร่
-- [ ] **Notification Center** — แจ้งเตือน in-app เมื่อ workflow fail / success / ต้องการ approval
-- [ ] **Cost Tracking per Workflow** — แสดงว่าแต่ละ workflow ใช้ token/credits เท่าไหร่
+- [x] **Workflow Scheduling UI** — cron parser, calendar day/week view, busiest day, total runs
+- [x] **Cost Tracking per Workflow** — 8 model pricing tables, token cost, execution cost, workflow summary
+- [x] **Dependency Graph** — callers/callees, transitive deps, cycle detection, topological sort, safe-to-delete
 - [ ] **Workflow Testing Suite** — เขียน test case สำหรับ workflow รัน regression test อัตโนมัติ
 - [ ] **Multi-language Node (Go, Ruby, PHP)** — Code node รองรับภาษาเพิ่มจาก JS
 - [ ] **On-premise Data Residency** — เลือก region ที่จะ store ข้อมูล สำหรับ compliance
 - [ ] **Workflow Documentation Generator** — AI auto-generate documentation จาก workflow
-- [ ] **Dependency Graph** — visualize ว่า workflow ไหน call workflow ไหนบ้าง
 
 ---
 
@@ -327,7 +316,12 @@
 | Phase 7 — Advanced | ✅ Done | Templates, Duplication, Execution Summary |
 | Phase 8 — Validation | ✅ Done | Workflow validator, node validator, template resolver |
 | Phase 9–24 — Utilities | ✅ Done | 661 tests, complete utility library |
-| Collaboration & RBAC | ⏳ Next | Projects, roles, versioning, audit log |
-| Enterprise & Security | ⏳ Planned | SSO, 2FA, self-hosted |
-| MCP Integration | ⏳ Planned | PowerNode as MCP client + server |
-| Ecosystem & Scale | ⏳ Planned | Marketplace, mobile app, Custom Node SDK |
+| Phase 25 — Collaboration | ✅ Done | Projects, RBAC (4 roles), versioning, audit log, brute-force |
+| Phase 26 — Enterprise | ✅ Done | TOTP 2FA, IP allowlist, security scanner (7 checks) |
+| Phase 27 — MCP | ✅ Done | 8 MCP tools, scope auth, response helpers |
+| Phase 28 — Ecosystem | ✅ Done | Marketplace, notifications, custom node SDK |
+| Phase 29 — Advanced UX | ✅ Done | Schedule calendar, cost tracking, dependency graph |
+| SSO / SAML | ⏳ Planned | Enterprise identity provider |
+| Multi-environment | ⏳ Planned | dev / staging / prod |
+| MCP HTTP Endpoint | ⏳ Planned | Live MCP server for Claude/Cursor |
+| Workflow Testing Suite | ⏳ Planned | Regression tests for workflows |
