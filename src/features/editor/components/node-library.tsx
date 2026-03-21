@@ -9,6 +9,26 @@ import {
   SearchIcon,
   GripVerticalIcon,
   StickyNoteIcon,
+  WebhookIcon,
+  ClockIcon,
+  GitBranchIcon,
+  RouteIcon,
+  FilterIcon,
+  RepeatIcon,
+  MergeIcon,
+  SplitIcon,
+  TimerIcon,
+  OctagonXIcon,
+  WorkflowIcon,
+  CodeIcon,
+  WandIcon,
+  LayersIcon,
+  ArrowUpDownIcon,
+  CopyXIcon,
+  CalendarIcon,
+  LockIcon,
+  FileTextIcon,
+  ArchiveIcon,
 } from "lucide-react";
 import { toast } from "sonner";
 import { NodeType } from "@/generated/prisma";
@@ -21,7 +41,7 @@ export type NodeTypeOption = {
   label: string;
   description: string;
   icon: React.ComponentType<{ className?: string }> | string;
-  category: "trigger" | "execution" | "utility";
+  category: "trigger" | "execution" | "logic" | "data" | "utility";
 };
 
 const triggerNodes: NodeTypeOption[] = [
@@ -44,6 +64,20 @@ const triggerNodes: NodeTypeOption[] = [
     label: "Stripe Event",
     description: "Runs when a Stripe Event is captured",
     icon: "/logos/stripe.svg",
+    category: "trigger",
+  },
+  {
+    type: NodeType.WEBHOOK_TRIGGER,
+    label: "Webhook",
+    description: "Receives HTTP webhook requests",
+    icon: WebhookIcon,
+    category: "trigger",
+  },
+  {
+    type: NodeType.SCHEDULE_TRIGGER,
+    label: "Schedule",
+    description: "Runs on a cron schedule",
+    icon: ClockIcon,
     category: "trigger",
   },
 ];
@@ -93,6 +127,30 @@ const executionNodes: NodeTypeOption[] = [
   },
 ];
 
+const logicNodes: NodeTypeOption[] = [
+  { type: NodeType.IF_CONDITION, label: "IF Condition", description: "Branch based on a condition", icon: GitBranchIcon, category: "logic" },
+  { type: NodeType.SWITCH, label: "Switch", description: "Route based on value", icon: RouteIcon, category: "logic" },
+  { type: NodeType.FILTER, label: "Filter", description: "Filter items by condition", icon: FilterIcon, category: "logic" },
+  { type: NodeType.LOOP, label: "Loop", description: "Iterate over items", icon: RepeatIcon, category: "logic" },
+  { type: NodeType.MERGE, label: "Merge", description: "Merge multiple inputs", icon: MergeIcon, category: "logic" },
+  { type: NodeType.SPLIT, label: "Split", description: "Split array into items", icon: SplitIcon, category: "logic" },
+  { type: NodeType.WAIT_DELAY, label: "Wait / Delay", description: "Wait before continuing", icon: TimerIcon, category: "logic" },
+  { type: NodeType.STOP_ERROR, label: "Stop & Error", description: "Stop workflow with error", icon: OctagonXIcon, category: "logic" },
+  { type: NodeType.SUB_WORKFLOW, label: "Sub-workflow", description: "Call another workflow", icon: WorkflowIcon, category: "logic" },
+];
+
+const dataNodes: NodeTypeOption[] = [
+  { type: NodeType.CODE, label: "Code", description: "Run custom JavaScript", icon: CodeIcon, category: "data" },
+  { type: NodeType.TRANSFORM, label: "Transform", description: "Transform data structure", icon: WandIcon, category: "data" },
+  { type: NodeType.AGGREGATE, label: "Aggregate", description: "Aggregate multiple items", icon: LayersIcon, category: "data" },
+  { type: NodeType.SORT, label: "Sort", description: "Sort items", icon: ArrowUpDownIcon, category: "data" },
+  { type: NodeType.REMOVE_DUPLICATES, label: "Remove Duplicates", description: "Remove duplicate items", icon: CopyXIcon, category: "data" },
+  { type: NodeType.DATE_TIME, label: "Date/Time", description: "Format and manipulate dates", icon: CalendarIcon, category: "data" },
+  { type: NodeType.CRYPTO, label: "Crypto", description: "Hash, encrypt, decrypt", icon: LockIcon, category: "data" },
+  { type: NodeType.MARKDOWN_HTML, label: "Markdown/HTML", description: "Convert markdown to HTML", icon: FileTextIcon, category: "data" },
+  { type: NodeType.COMPRESS, label: "Compress", description: "Zip/unzip files", icon: ArchiveIcon, category: "data" },
+];
+
 const utilityNodes: NodeTypeOption[] = [
   {
     type: NodeType.STICKY_NOTE,
@@ -103,7 +161,7 @@ const utilityNodes: NodeTypeOption[] = [
   },
 ];
 
-const allNodes = [...triggerNodes, ...executionNodes, ...utilityNodes];
+const allNodes = [...triggerNodes, ...executionNodes, ...logicNodes, ...dataNodes, ...utilityNodes];
 
 function NodeIcon({ icon, label }: { icon: NodeTypeOption["icon"]; label: string }) {
   if (typeof icon === "string") {
@@ -155,6 +213,8 @@ export function NodeLibrary({ className }: NodeLibraryProps) {
 
   const filteredTriggers = filtered.filter((n) => n.category === "trigger");
   const filteredExecutions = filtered.filter((n) => n.category === "execution");
+  const filteredLogic = filtered.filter((n) => n.category === "logic");
+  const filteredData = filtered.filter((n) => n.category === "data");
   const filteredUtilities = filtered.filter((n) => n.category === "utility");
 
   return (
@@ -194,11 +254,35 @@ export function NodeLibrary({ className }: NodeLibraryProps) {
             ))}
           </div>
         )}
+        {filteredLogic.length > 0 && (
+          <>
+            <Separator className="my-1" />
+            <div className="px-3 pb-2">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1 px-3">
+                Logic & Flow
+              </p>
+              {filteredLogic.map((node) => (
+                <DraggableNodeItem key={node.type} node={node} />
+              ))}
+            </div>
+          </>
+        )}
+        {filteredData.length > 0 && (
+          <>
+            <Separator className="my-1" />
+            <div className="px-3 pb-2">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1 px-3">
+                Data Transformation
+              </p>
+              {filteredData.map((node) => (
+                <DraggableNodeItem key={node.type} node={node} />
+              ))}
+            </div>
+          </>
+        )}
         {filteredUtilities.length > 0 && (
           <>
-            {(filteredTriggers.length > 0 || filteredExecutions.length > 0) && (
-              <Separator className="my-1" />
-            )}
+            <Separator className="my-1" />
             <div className="px-3 pb-2">
               <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1 px-3">
                 Utilities

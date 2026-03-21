@@ -122,6 +122,29 @@ enum NodeType {
   DISCORD
   SLACK
   STICKY_NOTE
+  // Phase 2: Triggers
+  SCHEDULE_TRIGGER
+  WEBHOOK_TRIGGER
+  // Phase 2: Logic & Flow Control
+  IF_CONDITION
+  SWITCH
+  FILTER
+  LOOP
+  MERGE
+  SPLIT
+  WAIT_DELAY
+  STOP_ERROR
+  SUB_WORKFLOW
+  // Phase 2: Data Transformation
+  CODE
+  TRANSFORM
+  AGGREGATE
+  SORT
+  REMOVE_DUPLICATES
+  DATE_TIME
+  CRYPTO
+  MARKDOWN_HTML
+  COMPRESS
 }
 
 model Node {

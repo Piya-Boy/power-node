@@ -13,6 +13,24 @@ import { DiscordNode } from "@/features/executions/components/discord/node";
 import { SlackNode } from "@/features/executions/components/slack/node";
 import { StickyNoteNode } from "@/features/editor/components/sticky-note-node";
 
+// Phase 2: Triggers
+import { WebhookTriggerNode } from "@/features/triggers/components/webhook-trigger/node";
+import { ScheduleTriggerNode } from "@/features/triggers/components/schedule-trigger/node";
+
+// Phase 2: Logic & Flow Control
+import { IfConditionNode } from "@/features/executions/components/if-condition/node";
+import { SwitchNode } from "@/features/executions/components/switch/node";
+import { FilterNode } from "@/features/executions/components/filter/node";
+import { LoopNode } from "@/features/executions/components/loop/node";
+import { MergeNode } from "@/features/executions/components/merge/node";
+import { SplitNode } from "@/features/executions/components/split/node";
+import { WaitDelayNode } from "@/features/executions/components/wait-delay/node";
+
+// Phase 2: Data Transformation
+import { CodeNode } from "@/features/executions/components/code/node";
+import { TransformNode } from "@/features/executions/components/transform/node";
+import { SortNode } from "@/features/executions/components/sort/node";
+
 export const nodeComponents = {
   [NodeType.INITIAL]: InitialNode,
   [NodeType.HTTP_REQUEST]: HttpRequestNode,
@@ -25,6 +43,29 @@ export const nodeComponents = {
   [NodeType.DISCORD]: DiscordNode,
   [NodeType.SLACK]: SlackNode,
   [NodeType.STICKY_NOTE]: StickyNoteNode,
+  // Phase 2: Triggers
+  [NodeType.WEBHOOK_TRIGGER]: WebhookTriggerNode,
+  [NodeType.SCHEDULE_TRIGGER]: ScheduleTriggerNode,
+  // Phase 2: Logic & Flow Control
+  [NodeType.IF_CONDITION]: IfConditionNode,
+  [NodeType.SWITCH]: SwitchNode,
+  [NodeType.FILTER]: FilterNode,
+  [NodeType.LOOP]: LoopNode,
+  [NodeType.MERGE]: MergeNode,
+  [NodeType.SPLIT]: SplitNode,
+  [NodeType.WAIT_DELAY]: WaitDelayNode,
+  [NodeType.STOP_ERROR]: WaitDelayNode, // Reuse wait node styling for now
+  [NodeType.SUB_WORKFLOW]: MergeNode, // Reuse merge node styling for now
+  // Phase 2: Data Transformation
+  [NodeType.CODE]: CodeNode,
+  [NodeType.TRANSFORM]: TransformNode,
+  [NodeType.AGGREGATE]: TransformNode, // Reuse transform styling
+  [NodeType.SORT]: SortNode,
+  [NodeType.REMOVE_DUPLICATES]: FilterNode, // Reuse filter styling
+  [NodeType.DATE_TIME]: TransformNode,
+  [NodeType.CRYPTO]: TransformNode,
+  [NodeType.MARKDOWN_HTML]: TransformNode,
+  [NodeType.COMPRESS]: TransformNode,
 } as const satisfies NodeTypes;
 
 export type RegisteredNodeType = keyof typeof nodeComponents;
