@@ -2,13 +2,20 @@
 
 ## ✅ Current — สิ่งที่มีแล้ว
 
-- Authentication (Email / GitHub / Google OAuth)
+- Authentication (Email / GitHub / Google OAuth) — Better Auth + optional `@better-auth/infra` (dash) เมื่อติดตั้ง dependency ครบ
 - Visual Workflow Editor (React Flow)
-- 10 Node Types (Triggers, AI, HTTP, Messaging)
+- **~47 node types** ใน catalog เดียว (Triggers, Logic, Data, Integrations, AI, Utilities)
 - Credential Storage (Encrypted API Keys)
 - Workflow Execution Engine (Inngest)
 - Execution History & Tracking
 - Billing & Subscription (Polar)
+
+### 📝 Recent updates (Mar 2026)
+
+- **Editor UX** — รวมรายการ node ทั้งหมดใน Sheet ขวา *“What triggers this workflow?”* พร้อมค้นหาและหมวดหมู่; แหล่งข้อมูลเดียวที่ `src/features/editor/lib/node-catalog.tsx`; เพิ่ม node จากปุ่ม **+** บน canvas หรือจาก **Initial node**
+- **React Flow** — ห่อ `ReactFlowProvider` ให้ `useReactFlow()` / `useNodeDrop()` ทำงานถูก context (แก้ error zustand provider)
+- **Inngest Realtime** — subscription token แบบ opt-in ด้วย `NEXT_PUBLIC_INNGEST_REALTIME_ENABLED=true` (ค่าเริ่มต้นปิดเพื่อไม่ให้ dev โดน 401 เมื่อยังไม่ตั้ง signing key); ดู `.env.example`
+- **Build / deps** — ต้อง `npm install` ให้ครบเมื่อมี dependency ใหม่ (เช่น `@better-auth/infra`)
 
 ---
 
@@ -16,7 +23,7 @@
 
 > ทำให้ editor ใช้งานได้จริงและ smooth
 
-- [x] **Node Library Sidebar** — เลือก node type แล้ว drag & drop ลง canvas ได้
+- [x] **Unified Add Node Sheet** — เลือก node จาก Sheet (หัวข้อ “What triggers this workflow?”) พร้อม search + หมวดหมู่; แทน sidebar “Nodes” เดิมเพื่อลดความซ้ำ
 - [x] **Node Configuration Panel** — คลิก node แล้วเปิด panel ด้านขวาเพื่อ config ค่าต่างๆ
 - [x] **Expression Editor** — อ้างอิง output จาก node ก่อนหน้าแบบ `{{node.output}}` พร้อม autocomplete
 - [x] **Node Output Preview** — แสดง input/output ของแต่ละ node บน canvas หลัง execute
@@ -306,8 +313,8 @@
 
 | Phase | Status | Highlights |
 |-------|--------|-----------|
-| Phase 1 — Core UX | ✅ Done | Node library, undo/redo, copy/paste, shortcuts |
-| Phase 2 — Logic & Data | ✅ Done | 30+ node types, IF/Loop/Code/Transform |
+| Phase 1 — Core UX | ✅ Done | Add-node sheet + catalog, undo/redo, copy/paste, shortcuts |
+| Phase 2 — Logic & Data | ✅ Done | ~47 node types in catalog, IF/Loop/Code/Transform |
 | Phase 3 — Integrations | ✅ Done | Telegram, Gmail, GitHub, PostgreSQL, MySQL, GraphQL |
 | Phase 4 — AI & LLM | ✅ Done | OpenAI, Anthropic, Gemini, Ollama, Sentiment, Classifier |
 | Phase 5 — AI Generator | ✅ Done | Prompt → workflow generation with GPT-4o |
