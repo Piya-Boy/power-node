@@ -609,6 +609,61 @@
 
 ---
 
+## ✅ Phase 54 — Workflow Cost Estimator
+
+- [x] **createNodeCostConfig** — create config with model, baseCostUsd, freeTierLimit, provider
+- [x] **calculateNodeCost** — per-execution/per-second/per-item/free/custom models
+- [x] **applyFreeTier** — compute billableExecutions and freeTierSavings with alreadyUsedFree support
+- [x] **estimateWorkflowCost** — full workflow estimate with node breakdown, confidence, assumptions
+- [x] **compareNodeCosts** — rank node configs by total cost descending
+- [x] **createBudget / updateBudgetSpend** — budget lifecycle management
+- [x] **getBudgetStatus** — ok/warning/critical/exceeded with percent + remaining
+- [x] **isBudgetExceeded / shouldAlertBudget** — quick boolean checks
+- [x] **formatCostUsd** — "$12.34" for normal amounts, sub-cent precision for tiny amounts
+- [x] **computeCostTrend** — up/down/stable trend with changePercent from daily costs
+- [x] **projectMonthlySpend** — linear projection based on daysElapsed (60 tests)
+
+---
+
+## ✅ Phase 55 — Workflow Import/Export
+
+- [x] **createExport** — create WorkflowExport package with format/version/metadata
+- [x] **validateExport** — structural validation of export object
+- [x] **parseExport** — parse JSON string to WorkflowExport or null
+- [x] **validateWorkflowForExport** — validate individual workflow before export
+- [x] **sanitizeForExport** — remove sensitive fields (apiKey/password/secret/token/credential/auth)
+- [x] **importFromExport** — import workflows with duplicate detection and validation level
+- [x] **validateImportedWorkflow** — strict/lenient/skip validation levels
+- [x] **mergeImportSettings** — merge existing + imported settings (imported wins)
+- [x] **createTemplate** — create WorkflowTemplate from workflow + metadata
+- [x] **instantiateTemplate** — create ExportedWorkflow from template with optional overrides
+- [x] **validateTemplate** — validate required template fields
+- [x] **detectFormat** — detect json/yaml/compressed/template from content string
+- [x] **estimateImportComplexity** — simple/moderate/complex based on node+edge counts
+- [x] **buildImportSummary** — human-readable import result summary (68 tests)
+
+---
+
+## ✅ Phase 56 — Team Permission Matrix
+
+- [x] **defineRoles** — full role definitions for owner/admin/editor/viewer/billing-admin/auditor
+- [x] **getPermissionsForRole** — permissions including inherited (admin inherits editor)
+- [x] **checkPermission** — full check with expiry, restrictions, custom permissions, inheritance
+- [x] **hasPermission** — simplified boolean wrapper
+- [x] **canAccessOwnedResource** — ownership-aware permission check
+- [x] **getAllowedActions** — list allowed actions for a resource
+- [x] **getAllowedResources** — list resources with at least one allowed action
+- [x] **mergePermissions** — merge base + custom with deduplication
+- [x] **applyRestrictions** — remove explicitly denied permissions
+- [x] **validatePolicy** — validate userId/teamId/role/createdAt
+- [x] **createPolicy** — create AccessPolicy with defaults
+- [x] **isPolicyExpired** — check expiry with optional custom 'now'
+- [x] **compareRoles** — -1/0/1 role hierarchy comparison (owner > admin > editor > ...)
+- [x] **isRoleAtLeast** — check role meets minimum privilege level
+- [x] **summarizePolicy** — role, permissionCount, allowedResources, isExpired (71 tests)
+
+---
+
 ## 📊 Progress Summary
 
 | Phase | Status | Highlights |
@@ -651,5 +706,8 @@
 | Phase 51 — Credential Encryption Utils | ✅ Done | encode/decode payload, mask, detect type, key rotation, vault (63 tests) |
 | Phase 52 — Execution Queue Prioritization | ✅ Done | Priority scoring, FIFO/fair-share/WRR strategies, quota, stuck detection (53 tests) |
 | Phase 53 — Notification Template Engine | ✅ Done | Render/validate templates, Slack/email formatters, preferences, stats (61 tests) |
-| **Total Tests** | **2223** | **79 test files** |
+| Phase 54 — Workflow Cost Estimator | ✅ Done | Node cost models, free tier, budget management, trend analysis (60 tests) |
+| Phase 55 — Workflow Import/Export | ✅ Done | Export/import packages, sanitize, templates, format detection (68 tests) |
+| Phase 56 — Team Permission Matrix | ✅ Done | 6 roles, inheritance, restrictions, expiry, policy summary (71 tests) |
+| **Total Tests** | **2422** | **82 test files** |
 | MCP HTTP Endpoint | ⏳ Planned | Live MCP server for Claude/Cursor |
