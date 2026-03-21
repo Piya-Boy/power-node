@@ -1,5 +1,6 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import { NodeType } from "@/generated/prisma";
+import type { GenerateWorkflowOptions } from "./generate-workflow";
 
 // Test the workflow validation and ID remapping logic
 type GeneratedNode = {
@@ -57,10 +58,14 @@ function validateWorkflow(workflow: GeneratedWorkflow): string[] {
   // Check connections reference valid nodes
   for (const conn of workflow.connections) {
     if (!ids.has(conn.fromNodeId)) {
-      errors.push(`Connection references unknown source node: ${conn.fromNodeId}`);
+      errors.push(
+        `Connection references unknown source node: ${conn.fromNodeId}`,
+      );
     }
     if (!ids.has(conn.toNodeId)) {
-      errors.push(`Connection references unknown target node: ${conn.toNodeId}`);
+      errors.push(
+        `Connection references unknown target node: ${conn.toNodeId}`,
+      );
     }
   }
 
@@ -96,6 +101,15 @@ function remapIds(
   return { nodes, connections, summary: workflow.summary };
 }
 
+describe("generateWorkflowFromPrompt options", () => {
+  it("accepts optional modelId for OpenAI models", () => {
+    const full: GenerateWorkflowOptions = { modelId: "gpt-4o" };
+    const mini: GenerateWorkflowOptions = { modelId: "gpt-4o-mini" };
+    expect(full.modelId).toBe("gpt-4o");
+    expect(mini.modelId).toBe("gpt-4o-mini");
+  });
+});
+
 describe("AI Workflow Generator", () => {
   it("should validate workflow has nodes", () => {
     const errors = validateWorkflow({
@@ -109,7 +123,13 @@ describe("AI Workflow Generator", () => {
   it("should validate workflow has a trigger", () => {
     const errors = validateWorkflow({
       nodes: [
-        { id: "1", type: NodeType.HTTP_REQUEST, name: "Request", position: { x: 0, y: 0 }, data: {} },
+        {
+          id: "1",
+          type: NodeType.HTTP_REQUEST,
+          name: "Request",
+          position: { x: 0, y: 0 },
+          data: {},
+        },
       ],
       connections: [],
       summary: "No trigger",
@@ -120,8 +140,20 @@ describe("AI Workflow Generator", () => {
   it("should pass validation for valid workflow", () => {
     const errors = validateWorkflow({
       nodes: [
-        { id: "1", type: NodeType.MANUAL_TRIGGER, name: "Start", position: { x: 0, y: 0 }, data: {} },
-        { id: "2", type: NodeType.HTTP_REQUEST, name: "Request", position: { x: 250, y: 0 }, data: {} },
+        {
+          id: "1",
+          type: NodeType.MANUAL_TRIGGER,
+          name: "Start",
+          position: { x: 0, y: 0 },
+          data: {},
+        },
+        {
+          id: "2",
+          type: NodeType.HTTP_REQUEST,
+          name: "Request",
+          position: { x: 250, y: 0 },
+          data: {},
+        },
       ],
       connections: [
         { fromNodeId: "1", toNodeId: "2", fromOutput: "main", toInput: "main" },
@@ -134,8 +166,20 @@ describe("AI Workflow Generator", () => {
   it("should detect duplicate IDs", () => {
     const errors = validateWorkflow({
       nodes: [
-        { id: "1", type: NodeType.MANUAL_TRIGGER, name: "Start", position: { x: 0, y: 0 }, data: {} },
-        { id: "1", type: NodeType.HTTP_REQUEST, name: "Request", position: { x: 250, y: 0 }, data: {} },
+        {
+          id: "1",
+          type: NodeType.MANUAL_TRIGGER,
+          name: "Start",
+          position: { x: 0, y: 0 },
+          data: {},
+        },
+        {
+          id: "1",
+          type: NodeType.HTTP_REQUEST,
+          name: "Request",
+          position: { x: 250, y: 0 },
+          data: {},
+        },
       ],
       connections: [],
       summary: "Dupe IDs",
@@ -146,10 +190,21 @@ describe("AI Workflow Generator", () => {
   it("should detect invalid connection references", () => {
     const errors = validateWorkflow({
       nodes: [
-        { id: "1", type: NodeType.MANUAL_TRIGGER, name: "Start", position: { x: 0, y: 0 }, data: {} },
+        {
+          id: "1",
+          type: NodeType.MANUAL_TRIGGER,
+          name: "Start",
+          position: { x: 0, y: 0 },
+          data: {},
+        },
       ],
       connections: [
-        { fromNodeId: "1", toNodeId: "99", fromOutput: "main", toInput: "main" },
+        {
+          fromNodeId: "1",
+          toNodeId: "99",
+          fromOutput: "main",
+          toInput: "main",
+        },
       ],
       summary: "Bad connection",
     });
@@ -159,7 +214,13 @@ describe("AI Workflow Generator", () => {
   it("should detect invalid node types", () => {
     const errors = validateWorkflow({
       nodes: [
-        { id: "1", type: "INVALID_TYPE" as any, name: "Bad", position: { x: 0, y: 0 }, data: {} },
+        {
+          id: "1",
+          type: "INVALID_TYPE",
+          name: "Bad",
+          position: { x: 0, y: 0 },
+          data: {},
+        },
       ],
       connections: [],
       summary: "Bad type",
@@ -171,11 +232,28 @@ describe("AI Workflow Generator", () => {
     let counter = 0;
     const workflow: GeneratedWorkflow = {
       nodes: [
-        { id: "old_1", type: NodeType.MANUAL_TRIGGER, name: "Start", position: { x: 0, y: 0 }, data: {} },
-        { id: "old_2", type: NodeType.HTTP_REQUEST, name: "Request", position: { x: 250, y: 0 }, data: {} },
+        {
+          id: "old_1",
+          type: NodeType.MANUAL_TRIGGER,
+          name: "Start",
+          position: { x: 0, y: 0 },
+          data: {},
+        },
+        {
+          id: "old_2",
+          type: NodeType.HTTP_REQUEST,
+          name: "Request",
+          position: { x: 250, y: 0 },
+          data: {},
+        },
       ],
       connections: [
-        { fromNodeId: "old_1", toNodeId: "old_2", fromOutput: "main", toInput: "main" },
+        {
+          fromNodeId: "old_1",
+          toNodeId: "old_2",
+          fromOutput: "main",
+          toInput: "main",
+        },
       ],
       summary: "Test",
     };
@@ -199,12 +277,20 @@ describe("AI Workflow Generator", () => {
     for (const triggerType of triggerTypes) {
       const errors = validateWorkflow({
         nodes: [
-          { id: "1", type: triggerType, name: "Trigger", position: { x: 0, y: 0 }, data: {} },
+          {
+            id: "1",
+            type: triggerType,
+            name: "Trigger",
+            position: { x: 0, y: 0 },
+            data: {},
+          },
         ],
         connections: [],
         summary: `Workflow with ${triggerType}`,
       });
-      expect(errors, `Should accept trigger type: ${triggerType}`).toHaveLength(0);
+      expect(errors, `Should accept trigger type: ${triggerType}`).toHaveLength(
+        0,
+      );
     }
   });
 });

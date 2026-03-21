@@ -1,8 +1,8 @@
-import { generateObject } from "ai";
 import { createOpenAI } from "@ai-sdk/openai";
+import { createId } from "@paralleldrive/cuid2";
+import { generateObject } from "ai";
 import { z } from "zod";
 import { NodeType } from "@/generated/prisma";
-import { createId } from "@paralleldrive/cuid2";
 
 // All available node types for the AI to use
 const availableNodeTypes = Object.values(NodeType).filter(
@@ -37,14 +37,22 @@ const workflowSchema = z.object({
 
 export type GeneratedWorkflow = z.infer<typeof workflowSchema>;
 
+export type GenerateWorkflowModelId = "gpt-4o" | "gpt-4o-mini";
+
+export type GenerateWorkflowOptions = {
+  modelId?: GenerateWorkflowModelId;
+};
+
 export async function generateWorkflowFromPrompt(
   prompt: string,
   apiKey: string,
+  options?: GenerateWorkflowOptions,
 ): Promise<GeneratedWorkflow> {
+  const modelId: GenerateWorkflowModelId = options?.modelId ?? "gpt-4o";
   const openai = createOpenAI({ apiKey });
 
   const { object } = await generateObject({
-    model: openai("gpt-4o"),
+    model: openai(modelId),
     system: `You are a workflow automation expert for PowerNode, similar to n8n.
 You generate workflow definitions from natural language descriptions.
 
