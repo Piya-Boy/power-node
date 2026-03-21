@@ -304,6 +304,37 @@
 
 ---
 
+## ✅ Phase 33 — Workflow Documentation Generator
+
+- [x] **describeNodeType** — human-readable descriptions for 40+ node types
+- [x] **Trigger Detection** — identifies all trigger node types
+- [x] **Execution Path Tracing** — DFS-based flow tracing with branching support
+- [x] **Node Categorization** — groups into Triggers/AI/Integrations/Logic/Data
+- [x] **Markdown Doc Generation** — full doc with overview, node inventory, execution flow
+- [x] **One-liner Summary** — single-line workflow description
+
+---
+
+## ✅ Phase 34 — Multi-Environment Support
+
+- [x] **Tier Validation** — dev → staging → production promotion ordering
+- [x] **Environment Diff** — detect added/removed/changed/same variables
+- [x] **Promotion Plan Builder** — change list, warnings, canPromote flag
+- [x] **Variable Validation** — required keys, empty string detection
+- [x] **Environment Name Sanitization** — lowercase slug format
+
+---
+
+## ✅ Phase 35 — Human Approval Workflow
+
+- [x] **Approval Request** — creation, status tracking, expiry
+- [x] **Decision Application** — eligibility check, duplicate prevention, status resolution
+- [x] **Multi-approver** — configurable requiredApprovals, approval counting
+- [x] **Pending Queries** — get pending requests for a specific approver
+- [x] **Notification Formatting** — human-readable approval notification
+
+---
+
 ## ✅ Phase 31-32 — Testing & Variable System
 
 > ทำให้ workflow มีความน่าเชื่อถือและ configurability สูง
@@ -335,6 +366,9 @@
 | Phase 30 — Custom Node SDK | ✅ Done | Node definition, validation, field types, search |
 | Phase 31 — Workflow Testing | ✅ Done | 11 assertion operators, test runner, suite aggregation |
 | Phase 32 — Variable System | ✅ Done | Scoped variables, env filtering, template interpolation |
+| Phase 33 — Doc Generator | ✅ Done | Markdown docs, execution path tracing, one-liners |
+| Phase 34 — Multi-Environment | ✅ Done | Tier promotion, diff, validation, sanitization |
+| Phase 35 — Human Approval | ✅ Done | Multi-approver, decisions, expiry, pending queries |
+| **Total Tests** | **1256** | **62 test files** |
 | SSO / SAML | ⏳ Planned | Enterprise identity provider |
-| Multi-environment | ⏳ Planned | dev / staging / prod |
 | MCP HTTP Endpoint | ⏳ Planned | Live MCP server for Claude/Cursor |
