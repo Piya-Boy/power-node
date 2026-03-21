@@ -121,6 +121,7 @@ enum NodeType {
   OPENAI
   DISCORD
   SLACK
+  STICKY_NOTE
 }
 
 model Node {

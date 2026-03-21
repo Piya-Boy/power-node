@@ -1,0 +1,268 @@
+"use client";
+
+import { useState, useCallback, type DragEvent } from "react";
+import { useReactFlow } from "@xyflow/react";
+import { createId } from "@paralleldrive/cuid2";
+import {
+  GlobeIcon,
+  MousePointerIcon,
+  SearchIcon,
+  GripVerticalIcon,
+  StickyNoteIcon,
+} from "lucide-react";
+import { toast } from "sonner";
+import { NodeType } from "@/generated/prisma";
+import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
+
+export type NodeTypeOption = {
+  type: NodeType;
+  label: string;
+  description: string;
+  icon: React.ComponentType<{ className?: string }> | string;
+  category: "trigger" | "execution" | "utility";
+};
+
+const triggerNodes: NodeTypeOption[] = [
+  {
+    type: NodeType.MANUAL_TRIGGER,
+    label: "Trigger manually",
+    description: "Runs the flow on clicking a button",
+    icon: MousePointerIcon,
+    category: "trigger",
+  },
+  {
+    type: NodeType.GOOGLE_FORM_TRIGGER,
+    label: "Google Form",
+    description: "Runs when a Google Form is submitted",
+    icon: "/logos/googleform.svg",
+    category: "trigger",
+  },
+  {
+    type: NodeType.STRIPE_TRIGGER,
+    label: "Stripe Event",
+    description: "Runs when a Stripe Event is captured",
+    icon: "/logos/stripe.svg",
+    category: "trigger",
+  },
+];
+
+const executionNodes: NodeTypeOption[] = [
+  {
+    type: NodeType.HTTP_REQUEST,
+    label: "HTTP Request",
+    description: "Makes an HTTP request",
+    icon: GlobeIcon,
+    category: "execution",
+  },
+  {
+    type: NodeType.GEMINI,
+    label: "Gemini",
+    description: "Uses Google Gemini to generate text",
+    icon: "/logos/gemini.svg",
+    category: "execution",
+  },
+  {
+    type: NodeType.OPENAI,
+    label: "OpenAI",
+    description: "Uses OpenAI to generate text",
+    icon: "/logos/openai.svg",
+    category: "execution",
+  },
+  {
+    type: NodeType.ANTHROPIC,
+    label: "Anthropic",
+    description: "Uses Anthropic to generate text",
+    icon: "/logos/anthropic.svg",
+    category: "execution",
+  },
+  {
+    type: NodeType.DISCORD,
+    label: "Discord",
+    description: "Send a message to Discord",
+    icon: "/logos/discord.svg",
+    category: "execution",
+  },
+  {
+    type: NodeType.SLACK,
+    label: "Slack",
+    description: "Send a message to Slack",
+    icon: "/logos/slack.svg",
+    category: "execution",
+  },
+];
+
+const utilityNodes: NodeTypeOption[] = [
+  {
+    type: NodeType.STICKY_NOTE,
+    label: "Sticky Note",
+    description: "Add a note or comment to the canvas",
+    icon: StickyNoteIcon,
+    category: "utility",
+  },
+];
+
+const allNodes = [...triggerNodes, ...executionNodes, ...utilityNodes];
+
+function NodeIcon({ icon, label }: { icon: NodeTypeOption["icon"]; label: string }) {
+  if (typeof icon === "string") {
+    return <img src={icon} alt={label} className="size-5 object-contain rounded-sm shrink-0" />;
+  }
+  const Icon = icon;
+  return <Icon className="size-5 shrink-0" />;
+}
+
+function DraggableNodeItem({ node }: { node: NodeTypeOption }) {
+  const onDragStart = useCallback(
+    (event: DragEvent) => {
+      event.dataTransfer.setData("application/powernode-type", node.type);
+      event.dataTransfer.effectAllowed = "move";
+    },
+    [node.type],
+  );
+
+  return (
+    <div
+      draggable
+      onDragStart={onDragStart}
+      className="flex items-center gap-3 px-3 py-2.5 rounded-md cursor-grab active:cursor-grabbing hover:bg-accent transition-colors group"
+    >
+      <GripVerticalIcon className="size-3.5 text-muted-foreground/50 group-hover:text-muted-foreground shrink-0" />
+      <NodeIcon icon={node.icon} label={node.label} />
+      <div className="flex flex-col min-w-0">
+        <span className="text-sm font-medium truncate">{node.label}</span>
+        <span className="text-xs text-muted-foreground truncate">{node.description}</span>
+      </div>
+    </div>
+  );
+}
+
+interface NodeLibraryProps {
+  className?: string;
+}
+
+export function NodeLibrary({ className }: NodeLibraryProps) {
+  const [search, setSearch] = useState("");
+
+  const filtered = search
+    ? allNodes.filter(
+        (n) =>
+          n.label.toLowerCase().includes(search.toLowerCase()) ||
+          n.description.toLowerCase().includes(search.toLowerCase()),
+      )
+    : allNodes;
+
+  const filteredTriggers = filtered.filter((n) => n.category === "trigger");
+  const filteredExecutions = filtered.filter((n) => n.category === "execution");
+  const filteredUtilities = filtered.filter((n) => n.category === "utility");
+
+  return (
+    <div className={className}>
+      <div className="p-3">
+        <div className="relative">
+          <SearchIcon className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
+          <Input
+            placeholder="Search nodes..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="pl-9 h-9"
+          />
+        </div>
+      </div>
+      <ScrollArea className="flex-1">
+        {filteredTriggers.length > 0 && (
+          <div className="px-3 pb-2">
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1 px-3">
+              Triggers
+            </p>
+            {filteredTriggers.map((node) => (
+              <DraggableNodeItem key={node.type} node={node} />
+            ))}
+          </div>
+        )}
+        {filteredTriggers.length > 0 && filteredExecutions.length > 0 && (
+          <Separator className="my-1" />
+        )}
+        {filteredExecutions.length > 0 && (
+          <div className="px-3 pb-2">
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1 px-3">
+              Actions
+            </p>
+            {filteredExecutions.map((node) => (
+              <DraggableNodeItem key={node.type} node={node} />
+            ))}
+          </div>
+        )}
+        {filteredUtilities.length > 0 && (
+          <>
+            {(filteredTriggers.length > 0 || filteredExecutions.length > 0) && (
+              <Separator className="my-1" />
+            )}
+            <div className="px-3 pb-2">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1 px-3">
+                Utilities
+              </p>
+              {filteredUtilities.map((node) => (
+                <DraggableNodeItem key={node.type} node={node} />
+              ))}
+            </div>
+          </>
+        )}
+        {filtered.length === 0 && (
+          <div className="px-6 py-8 text-center text-sm text-muted-foreground">
+            No nodes found
+          </div>
+        )}
+      </ScrollArea>
+    </div>
+  );
+}
+
+export function useNodeDrop() {
+  const { setNodes, getNodes, screenToFlowPosition } = useReactFlow();
+
+  const onDragOver = useCallback((event: DragEvent) => {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = "move";
+  }, []);
+
+  const onDrop = useCallback(
+    (event: DragEvent) => {
+      event.preventDefault();
+      const nodeType = event.dataTransfer.getData("application/powernode-type") as NodeType;
+      if (!nodeType) return;
+
+      if (nodeType === NodeType.MANUAL_TRIGGER) {
+        const nodes = getNodes();
+        if (nodes.some((n) => n.type === NodeType.MANUAL_TRIGGER)) {
+          toast.error("Only one manual trigger is allowed per workflow");
+          return;
+        }
+      }
+
+      const position = screenToFlowPosition({
+        x: event.clientX,
+        y: event.clientY,
+      });
+
+      setNodes((nodes) => {
+        const hasInitial = nodes.some((n) => n.type === NodeType.INITIAL);
+        const newNode = {
+          id: createId(),
+          data: {},
+          position,
+          type: nodeType,
+        };
+
+        if (hasInitial) {
+          return [newNode];
+        }
+        return [...nodes, newNode];
+      });
+    },
+    [setNodes, getNodes, screenToFlowPosition],
+  );
+
+  return { onDragOver, onDrop };
+}

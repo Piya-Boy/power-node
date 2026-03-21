@@ -10,6 +10,9 @@ import { anthropicExecutor } from "../components/anthropic/executor";
 import { discordExecutor } from "../components/discord/executor";
 import { slackExecutor } from "../components/slack/executor";
 
+// No-op executor for nodes that don't execute (e.g., sticky notes)
+const noopExecutor: NodeExecutor = async ({ context }) => context;
+
 export const executorRegistry: Record<NodeType, NodeExecutor> = {
   [NodeType.INITIAL]: manualTriggerExecutor,
   [NodeType.MANUAL_TRIGGER]: manualTriggerExecutor,
@@ -21,6 +24,7 @@ export const executorRegistry: Record<NodeType, NodeExecutor> = {
   [NodeType.OPENAI]: openAiExecutor,
   [NodeType.DISCORD]: discordExecutor,
   [NodeType.SLACK]: slackExecutor,
+  [NodeType.STICKY_NOTE]: noopExecutor,
 };
 
 export const getExecutor = (type: NodeType): NodeExecutor => {
