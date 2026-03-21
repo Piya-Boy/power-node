@@ -345,6 +345,45 @@
 
 ---
 
+## ✅ Phase 36 — SSO / SAML / OIDC
+
+- [x] **SAML Config Validation** — entityId, ACS URL, IdP URL, PEM certificate
+- [x] **SAML AuthnRequest Builder** — HTTP-POST and HTTP-Redirect bindings
+- [x] **SAML Response Parser** — base64 decode, NameID, attributes, expiry validation
+- [x] **SAML Attribute Mapping** — map SAML attributes to SsoUserProfile
+- [x] **OIDC Auth Request Builder** — authorization URL, scopes, PKCE, nonce
+- [x] **OIDC ID Token Parser** — JWT decode, sub/iss/exp validation
+- [x] **OIDC Claims Mapping** — map OIDC claims to SsoUserProfile
+- [x] **Connection Routing** — find SSO connection by email domain
+- [x] **PKCE** — code verifier generation, S256 challenge, validation
+- [x] **State / Nonce** — base64url encode/decode of connection context
+
+---
+
+## ✅ Phase 37 — External Secrets Manager
+
+- [x] **Secret URI Parser** — vault://, aws-sm://, gcp-sm://, azure-kv://, env://
+- [x] **Path Builders** — Vault KV v2, AWS SM ARN, GCP SM resource name, Azure KV URL
+- [x] **Config Validators** — all 4 providers with URL/region/project validation
+- [x] **SecretMetadata** — creation, rotation policy scheduling, status tracking
+- [x] **Rotation Status** — overdue detection, due-soon window, days remaining
+- [x] **Template Interpolation** — {{secret:uri}} placeholder extraction and substitution
+- [x] **Missing Secret Detection** — identify unresolved secrets in templates
+
+---
+
+## ✅ Phase 38 — Rate Limiting & Quota Management
+
+- [x] **4-Tier Plan Quotas** — free/starter/pro/enterprise for 9 resource types
+- [x] **Quota Checking** — hard limit, soft limit (configurable %), remaining, percent used
+- [x] **canConsume()** — pre-flight check before incrementing usage
+- [x] **buildUsageSummary()** — violations, nearing limits, health score 0-100
+- [x] **Plan Comparison** — comparePlans, meetsMinimumPlan, getNextPlan
+- [x] **Upgrade Impact** — show limit improvements between plan tiers
+- [x] **Reset Scheduling** — hourly, daily, monthly, billing_period boundaries
+
+---
+
 ## 📊 Progress Summary
 
 | Phase | Status | Highlights |
@@ -369,6 +408,9 @@
 | Phase 33 — Doc Generator | ✅ Done | Markdown docs, execution path tracing, one-liners |
 | Phase 34 — Multi-Environment | ✅ Done | Tier promotion, diff, validation, sanitization |
 | Phase 35 — Human Approval | ✅ Done | Multi-approver, decisions, expiry, pending queries |
-| **Total Tests** | **1256** | **62 test files** |
-| SSO / SAML | ⏳ Planned | Enterprise identity provider |
+| Phase 36 — SSO / SAML / OIDC | ✅ Done | SAML parser, OIDC flow, PKCE, connection routing (54 tests) |
+| Phase 37 — External Secrets | ✅ Done | Vault/AWS/GCP/Azure, URI parsing, rotation, interpolation (60 tests) |
+| Phase 38 — Quota Manager | ✅ Done | 4-tier plans, 9 resources, soft/hard limits, health score (47 tests) |
+| **Total Tests** | **1417** | **65 test files** |
 | MCP HTTP Endpoint | ⏳ Planned | Live MCP server for Claude/Cursor |
+| White-labeling | ⏳ Planned | Embed mode, custom branding |
