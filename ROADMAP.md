@@ -9,9 +9,11 @@
 - Workflow Execution Engine (Inngest)
 - Execution History & Tracking
 - Billing & Subscription (Polar)
+- **AI Workflow Generator** — composer แบบแถบลอยด้านล่าง (pill); เลือกโมเดล GPT-4o / GPT-4o mini; ตัวอย่าง prompt จากปุ่ม **+**; กรอบแดงขณะกำลัง generate (`src/features/ai-workflow/ai-workflow-dialog.tsx`)
 
 ### 📝 Recent updates (Mar 2026)
 
+- **AI Workflow Generator (UI)** — จาก modal กลางจอเป็น **floating composer** ด้านล่าง (rounded pill, shadow); placeholder แบบ “What would you like to change or create?”; **Enter** สร้าง workflow / **Shift+Enter** ขึ้นบรรทัดใหม่; ปุ่ม **+** เปิด Popover “Try an example”; เลือก **GPT-4o** หรือ **GPT-4o mini** ผ่าน `generateWorkflowFromPrompt(..., { modelId })`; ตอนกำลังคิดแสดง **กรอบแดง + ring** และ `aria-busy`
 - **Editor UX** — รวมรายการ node ทั้งหมดใน Sheet ขวา *“What triggers this workflow?”* พร้อมค้นหาและหมวดหมู่; แหล่งข้อมูลเดียวที่ `src/features/editor/lib/node-catalog.tsx`; เพิ่ม node จากปุ่ม **+** บน canvas หรือจาก **Initial node**
 - **React Flow** — ห่อ `ReactFlowProvider` ให้ `useReactFlow()` / `useNodeDrop()` ทำงานถูก context (แก้ error zustand provider)
 - **Inngest Realtime** — subscription token แบบ opt-in ด้วย `NEXT_PUBLIC_INNGEST_REALTIME_ENABLED=true` (ค่าเริ่มต้นปิดเพื่อไม่ให้ dev โดน 401 เมื่อยังไม่ตั้ง signing key); ดู `.env.example`
@@ -129,7 +131,10 @@
 > พิมพ์ prompt แล้วให้ AI สร้าง workflow ให้อัตโนมัติ
 
 - [x] **Prompt → Workflow** — วิเคราะห์ prompt แล้ว generate nodes + connections ให้เลย
-- [x] **Example Prompts** — ตัวอย่าง prompt พร้อมใช้งาน
+- [x] **Example Prompts** — ตัวอย่างใน Popover จากปุ่ม **+** บน composer
+- [x] **Floating composer UI** — แถบด้านล่างกลางจอ (Dialog + pill) แทนกล่อง modal เดิม
+- [x] **Model picker (generation)** — เลือก `gpt-4o` / `gpt-4o-mini` ตอนเรียก `generateWorkflowFromPrompt`
+- [x] **Generating feedback** — กรอบแดง + ring + `aria-busy` ขณะรอ API
 - [ ] **AI Suggestions** — แนะนำ node ถัดไปที่ควรเพิ่มจาก context ของ workflow
 - [ ] **Workflow Chat** — คุยกับ AI เพื่อแก้ไข / ปรับ workflow ผ่าน natural language
 - [ ] **Auto-fix Errors** — AI วิเคราะห์ execution error แล้วเสนอวิธีแก้อัตโนมัติ
@@ -317,7 +322,7 @@
 | Phase 2 — Logic & Data | ✅ Done | ~47 node types in catalog, IF/Loop/Code/Transform |
 | Phase 3 — Integrations | ✅ Done | Telegram, Gmail, GitHub, PostgreSQL, MySQL, GraphQL |
 | Phase 4 — AI & LLM | ✅ Done | OpenAI, Anthropic, Gemini, Ollama, Sentiment, Classifier |
-| Phase 5 — AI Generator | ✅ Done | Prompt → workflow generation with GPT-4o |
+| Phase 5 — AI Generator | ✅ Done | Floating composer, model picker, prompt → workflow |
 | Phase 6 — DevX | ✅ Done | Export/Import, API keys, REST API, Webhooks |
 | Phase 7 — Advanced | ✅ Done | Templates, Duplication, Execution Summary |
 | Phase 8 — Validation | ✅ Done | Workflow validator, node validator, template resolver |
