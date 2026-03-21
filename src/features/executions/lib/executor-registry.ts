@@ -29,6 +29,16 @@ import { graphqlExecutor } from "../components/graphql/executor";
 import { postgresqlExecutor } from "../components/postgresql-query/executor";
 import { mysqlExecutor } from "../components/mysql-query/executor";
 
+// Phase 4: AI & LLM
+import { aiAgentExecutor } from "../components/ai-agent/executor";
+import { ollamaExecutor } from "../components/ollama/executor";
+import { textClassifierExecutor } from "../components/text-classifier/executor";
+import { sentimentAnalysisExecutor } from "../components/sentiment-analysis/executor";
+import { informationExtractorExecutor } from "../components/information-extractor/executor";
+import { aiTransformExecutor } from "../components/ai-transform/executor";
+import { summarizationExecutor } from "../components/summarization/executor";
+import { chatTriggerExecutor } from "@/features/triggers/components/chat-trigger/executor";
+
 // No-op executor for nodes that don't execute (e.g., sticky notes, placeholder nodes)
 const noopExecutor: NodeExecutor = async ({ context }) => context;
 
@@ -79,6 +89,15 @@ export const executorRegistry: Record<NodeType, NodeExecutor> = {
   [NodeType.GRAPHQL]: graphqlExecutor,
   [NodeType.POSTGRESQL_QUERY]: postgresqlExecutor,
   [NodeType.MYSQL_QUERY]: mysqlExecutor,
+  // Phase 4: AI & LLM
+  [NodeType.AI_AGENT]: aiAgentExecutor,
+  [NodeType.OLLAMA]: ollamaExecutor,
+  [NodeType.TEXT_CLASSIFIER]: textClassifierExecutor,
+  [NodeType.SENTIMENT_ANALYSIS]: sentimentAnalysisExecutor,
+  [NodeType.INFORMATION_EXTRACTOR]: informationExtractorExecutor,
+  [NodeType.AI_TRANSFORM]: aiTransformExecutor,
+  [NodeType.SUMMARIZATION]: summarizationExecutor,
+  [NodeType.CHAT_TRIGGER]: chatTriggerExecutor,
 };
 
 export const getExecutor = (type: NodeType): NodeExecutor => {

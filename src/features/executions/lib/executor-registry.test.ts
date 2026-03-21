@@ -23,26 +23,13 @@ describe("executorRegistry", () => {
 
   it("should have all Phase 2 node types registered", () => {
     const phase2Types = [
-      NodeType.WEBHOOK_TRIGGER,
-      NodeType.SCHEDULE_TRIGGER,
-      NodeType.IF_CONDITION,
-      NodeType.SWITCH,
-      NodeType.FILTER,
-      NodeType.LOOP,
-      NodeType.MERGE,
-      NodeType.SPLIT,
-      NodeType.WAIT_DELAY,
-      NodeType.STOP_ERROR,
-      NodeType.SUB_WORKFLOW,
-      NodeType.CODE,
-      NodeType.TRANSFORM,
-      NodeType.AGGREGATE,
-      NodeType.SORT,
-      NodeType.REMOVE_DUPLICATES,
-      NodeType.DATE_TIME,
-      NodeType.CRYPTO,
-      NodeType.MARKDOWN_HTML,
-      NodeType.COMPRESS,
+      NodeType.WEBHOOK_TRIGGER, NodeType.SCHEDULE_TRIGGER,
+      NodeType.IF_CONDITION, NodeType.SWITCH, NodeType.FILTER,
+      NodeType.LOOP, NodeType.MERGE, NodeType.SPLIT,
+      NodeType.WAIT_DELAY, NodeType.STOP_ERROR, NodeType.SUB_WORKFLOW,
+      NodeType.CODE, NodeType.TRANSFORM, NodeType.AGGREGATE,
+      NodeType.SORT, NodeType.REMOVE_DUPLICATES, NodeType.DATE_TIME,
+      NodeType.CRYPTO, NodeType.MARKDOWN_HTML, NodeType.COMPRESS,
     ];
 
     for (const type of phase2Types) {
@@ -52,17 +39,10 @@ describe("executorRegistry", () => {
 
   it("should have all Phase 3 integration types registered", () => {
     const phase3Types = [
-      NodeType.TELEGRAM,
-      NodeType.EMAIL_SMTP,
-      NodeType.NOTION,
-      NodeType.GOOGLE_SHEETS,
-      NodeType.GOOGLE_CALENDAR,
-      NodeType.GOOGLE_DRIVE,
-      NodeType.GMAIL,
-      NodeType.GITHUB,
-      NodeType.GRAPHQL,
-      NodeType.POSTGRESQL_QUERY,
-      NodeType.MYSQL_QUERY,
+      NodeType.TELEGRAM, NodeType.EMAIL_SMTP, NodeType.NOTION,
+      NodeType.GOOGLE_SHEETS, NodeType.GOOGLE_CALENDAR,
+      NodeType.GOOGLE_DRIVE, NodeType.GMAIL, NodeType.GITHUB,
+      NodeType.GRAPHQL, NodeType.POSTGRESQL_QUERY, NodeType.MYSQL_QUERY,
     ];
 
     for (const type of phase3Types) {
@@ -70,12 +50,23 @@ describe("executorRegistry", () => {
     }
   });
 
+  it("should have all Phase 4 AI types registered", () => {
+    const phase4Types = [
+      NodeType.AI_AGENT, NodeType.OLLAMA,
+      NodeType.TEXT_CLASSIFIER, NodeType.SENTIMENT_ANALYSIS,
+      NodeType.INFORMATION_EXTRACTOR, NodeType.AI_TRANSFORM,
+      NodeType.SUMMARIZATION, NodeType.CHAT_TRIGGER,
+    ];
+
+    for (const type of phase4Types) {
+      expect(executorRegistry[type], `Missing Phase 4 executor: ${type}`).toBeDefined();
+    }
+  });
+
   it("noop executors should pass through context unchanged", async () => {
     const noopTypes = [
-      NodeType.STICKY_NOTE,
-      NodeType.SWITCH,
-      NodeType.FILTER,
-      NodeType.LOOP,
+      NodeType.STICKY_NOTE, NodeType.SWITCH,
+      NodeType.FILTER, NodeType.LOOP,
     ];
 
     for (const type of noopTypes) {
@@ -95,23 +86,28 @@ describe("executorRegistry", () => {
 
   it("Phase 3 executors should not be noop", () => {
     const phase3Types = [
-      NodeType.TELEGRAM,
-      NodeType.EMAIL_SMTP,
-      NodeType.NOTION,
-      NodeType.GOOGLE_SHEETS,
-      NodeType.GITHUB,
-      NodeType.GRAPHQL,
-      NodeType.POSTGRESQL_QUERY,
-      NodeType.MYSQL_QUERY,
+      NodeType.TELEGRAM, NodeType.EMAIL_SMTP, NodeType.NOTION,
+      NodeType.GOOGLE_SHEETS, NodeType.GITHUB, NodeType.GRAPHQL,
+      NodeType.POSTGRESQL_QUERY, NodeType.MYSQL_QUERY,
     ];
 
-    // These should have real executor functions, not the noop executor
     const noopExecutor = executorRegistry[NodeType.STICKY_NOTE];
     for (const type of phase3Types) {
-      expect(
-        executorRegistry[type],
-        `Phase 3 executor ${type} should not be noop`,
-      ).not.toBe(noopExecutor);
+      expect(executorRegistry[type], `Phase 3 executor ${type} should not be noop`).not.toBe(noopExecutor);
+    }
+  });
+
+  it("Phase 4 AI executors should not be noop", () => {
+    const phase4Types = [
+      NodeType.AI_AGENT, NodeType.OLLAMA,
+      NodeType.TEXT_CLASSIFIER, NodeType.SENTIMENT_ANALYSIS,
+      NodeType.INFORMATION_EXTRACTOR, NodeType.AI_TRANSFORM,
+      NodeType.SUMMARIZATION, NodeType.CHAT_TRIGGER,
+    ];
+
+    const noopExecutor = executorRegistry[NodeType.STICKY_NOTE];
+    for (const type of phase4Types) {
+      expect(executorRegistry[type], `Phase 4 executor ${type} should not be noop`).not.toBe(noopExecutor);
     }
   });
 });

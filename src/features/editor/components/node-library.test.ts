@@ -6,7 +6,7 @@ type NodeTypeOption = {
   type: NodeType;
   label: string;
   description: string;
-  category: "trigger" | "execution" | "logic" | "data" | "utility" | "integration";
+  category: "trigger" | "execution" | "logic" | "data" | "utility" | "integration" | "ai";
 };
 
 // Mirror the data from node-library.tsx for testing
@@ -16,6 +16,7 @@ const triggerNodes: NodeTypeOption[] = [
   { type: NodeType.STRIPE_TRIGGER, label: "Stripe Event", description: "Runs when a Stripe Event is captured", category: "trigger" },
   { type: NodeType.WEBHOOK_TRIGGER, label: "Webhook", description: "Receives HTTP webhook requests", category: "trigger" },
   { type: NodeType.SCHEDULE_TRIGGER, label: "Schedule", description: "Runs on a cron schedule", category: "trigger" },
+  { type: NodeType.CHAT_TRIGGER, label: "Chat", description: "Runs when a chat message is received", category: "trigger" },
 ];
 
 const executionNodes: NodeTypeOption[] = [
@@ -40,6 +41,16 @@ const integrationNodes: NodeTypeOption[] = [
   { type: NodeType.MYSQL_QUERY, label: "MySQL", description: "Execute SQL on MySQL", category: "integration" },
 ];
 
+const aiNodes: NodeTypeOption[] = [
+  { type: NodeType.AI_AGENT, label: "AI Agent", description: "AI agent with tool use", category: "ai" },
+  { type: NodeType.OLLAMA, label: "Ollama", description: "Run local LLMs (Llama, Mistral)", category: "ai" },
+  { type: NodeType.TEXT_CLASSIFIER, label: "Text Classifier", description: "Classify text into categories", category: "ai" },
+  { type: NodeType.SENTIMENT_ANALYSIS, label: "Sentiment Analysis", description: "Analyze text sentiment", category: "ai" },
+  { type: NodeType.INFORMATION_EXTRACTOR, label: "Info Extractor", description: "Extract structured data from text", category: "ai" },
+  { type: NodeType.AI_TRANSFORM, label: "AI Transform", description: "Transform data with AI", category: "ai" },
+  { type: NodeType.SUMMARIZATION, label: "Summarize", description: "Summarize text automatically", category: "ai" },
+];
+
 const logicNodes: NodeTypeOption[] = [
   { type: NodeType.IF_CONDITION, label: "IF Condition", description: "Branch based on a condition", category: "logic" },
   { type: NodeType.SWITCH, label: "Switch", description: "Route based on value", category: "logic" },
@@ -57,7 +68,7 @@ const utilityNodes: NodeTypeOption[] = [
   { type: NodeType.STICKY_NOTE, label: "Sticky Note", description: "Add a note or comment to the canvas", category: "utility" },
 ];
 
-const allNodes = [...triggerNodes, ...executionNodes, ...integrationNodes, ...logicNodes, ...dataNodes, ...utilityNodes];
+const allNodes = [...triggerNodes, ...executionNodes, ...integrationNodes, ...aiNodes, ...logicNodes, ...dataNodes, ...utilityNodes];
 
 function filterNodes(search: string): NodeTypeOption[] {
   if (!search) return allNodes;
@@ -121,13 +132,15 @@ describe("Node Library Filtering", () => {
     const triggers = allNodes.filter((n) => n.category === "trigger");
     const executions = allNodes.filter((n) => n.category === "execution");
     const integrations = allNodes.filter((n) => n.category === "integration");
+    const ai = allNodes.filter((n) => n.category === "ai");
     const logic = allNodes.filter((n) => n.category === "logic");
     const data = allNodes.filter((n) => n.category === "data");
     const utility = allNodes.filter((n) => n.category === "utility");
 
-    expect(triggers.length).toBe(5);
+    expect(triggers.length).toBe(6);
     expect(executions.length).toBe(5);
     expect(integrations.length).toBe(11);
+    expect(ai.length).toBe(7);
     expect(logic.length).toBe(4);
     expect(data.length).toBe(3);
     expect(utility.length).toBe(1);
@@ -151,7 +164,7 @@ describe("Node Library Filtering", () => {
 
   it("should find multiple Google integrations", () => {
     const result = filterNodes("Google");
-    expect(result.length).toBeGreaterThanOrEqual(4); // Sheets, Calendar, Drive, Form
+    expect(result.length).toBeGreaterThanOrEqual(4);
     const types = result.map((n) => n.type);
     expect(types).toContain(NodeType.GOOGLE_SHEETS);
     expect(types).toContain(NodeType.GOOGLE_CALENDAR);
@@ -168,7 +181,7 @@ describe("Node Library Filtering", () => {
 
   it("should find email-related nodes", () => {
     const result = filterNodes("email");
-    expect(result.length).toBeGreaterThanOrEqual(2); // SMTP and Gmail
+    expect(result.length).toBeGreaterThanOrEqual(2);
     const types = result.map((n) => n.type);
     expect(types).toContain(NodeType.EMAIL_SMTP);
     expect(types).toContain(NodeType.GMAIL);
@@ -181,5 +194,34 @@ describe("Node Library Filtering", () => {
         expect.objectContaining({ type: NodeType.GITHUB }),
       ]),
     );
+  });
+
+  // Phase 4 AI tests
+  it("should find AI nodes by sentiment", () => {
+    const result = filterNodes("sentiment");
+    expect(result.length).toBe(1);
+    expect(result[0].type).toBe(NodeType.SENTIMENT_ANALYSIS);
+  });
+
+  it("should find Ollama node by LLM", () => {
+    const result = filterNodes("LLM");
+    expect(result).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ type: NodeType.OLLAMA }),
+      ]),
+    );
+  });
+
+  it("should find AI Agent node", () => {
+    const result = filterNodes("AI Agent");
+    expect(result.length).toBeGreaterThanOrEqual(1);
+    expect(result[0].type).toBe(NodeType.AI_AGENT);
+  });
+
+  it("should find summarize node", () => {
+    const result = filterNodes("Summarize");
+    expect(result.length).toBeGreaterThanOrEqual(1);
+    const types = result.map((n) => n.type);
+    expect(types).toContain(NodeType.SUMMARIZATION);
   });
 });

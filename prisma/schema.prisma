@@ -102,6 +102,8 @@ enum CredentialType {
   SMTP
   POSTGRES
   MYSQL
+  // Phase 4: AI
+  OLLAMA
 }
 
 model Workflow {
@@ -168,6 +170,15 @@ enum NodeType {
   // Phase 3: Integrations - Database
   POSTGRESQL_QUERY
   MYSQL_QUERY
+  // Phase 4: AI & LLM
+  AI_AGENT
+  OLLAMA
+  TEXT_CLASSIFIER
+  SENTIMENT_ANALYSIS
+  INFORMATION_EXTRACTOR
+  AI_TRANSFORM
+  SUMMARIZATION
+  CHAT_TRIGGER
 }
 
 model Node {

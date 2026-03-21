@@ -44,6 +44,16 @@ import { GraphQLNode } from "@/features/executions/components/graphql/node";
 import { PostgresqlNode } from "@/features/executions/components/postgresql-query/node";
 import { MysqlNode } from "@/features/executions/components/mysql-query/node";
 
+// Phase 4: AI & LLM
+import { AiAgentNode } from "@/features/executions/components/ai-agent/node";
+import { OllamaNode } from "@/features/executions/components/ollama/node";
+import { TextClassifierNode } from "@/features/executions/components/text-classifier/node";
+import { SentimentAnalysisNode } from "@/features/executions/components/sentiment-analysis/node";
+import { InformationExtractorNode } from "@/features/executions/components/information-extractor/node";
+import { AiTransformNode } from "@/features/executions/components/ai-transform/node";
+import { SummarizationNode } from "@/features/executions/components/summarization/node";
+import { ChatTriggerNode } from "@/features/triggers/components/chat-trigger/node";
+
 export const nodeComponents = {
   [NodeType.INITIAL]: InitialNode,
   [NodeType.HTTP_REQUEST]: HttpRequestNode,
@@ -91,6 +101,15 @@ export const nodeComponents = {
   [NodeType.GRAPHQL]: GraphQLNode,
   [NodeType.POSTGRESQL_QUERY]: PostgresqlNode,
   [NodeType.MYSQL_QUERY]: MysqlNode,
+  // Phase 4: AI & LLM
+  [NodeType.AI_AGENT]: AiAgentNode,
+  [NodeType.OLLAMA]: OllamaNode,
+  [NodeType.TEXT_CLASSIFIER]: TextClassifierNode,
+  [NodeType.SENTIMENT_ANALYSIS]: SentimentAnalysisNode,
+  [NodeType.INFORMATION_EXTRACTOR]: InformationExtractorNode,
+  [NodeType.AI_TRANSFORM]: AiTransformNode,
+  [NodeType.SUMMARIZATION]: SummarizationNode,
+  [NodeType.CHAT_TRIGGER]: ChatTriggerNode,
 } as const satisfies NodeTypes;
 
 export type RegisteredNodeType = keyof typeof nodeComponents;

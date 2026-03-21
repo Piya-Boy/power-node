@@ -125,6 +125,7 @@ const credentialLogos: Record<CredentialType, string> = {
   [CredentialType.SMTP]: "/logos/logo.svg",
   [CredentialType.POSTGRES]: "/logos/logo.svg",
   [CredentialType.MYSQL]: "/logos/logo.svg",
+  [CredentialType.OLLAMA]: "/logos/logo.svg",
 };
 
 export const CredentialItem = ({

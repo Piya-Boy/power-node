@@ -37,6 +37,14 @@ import {
   HardDriveIcon,
   BracesIcon,
   DatabaseIcon,
+  BotIcon,
+  CpuIcon,
+  TagsIcon,
+  HeartIcon,
+  FileSearchIcon,
+  SparklesIcon,
+  FileTextIcon as FileText2Icon,
+  MessageCircleIcon,
 } from "lucide-react";
 import { toast } from "sonner";
 import { NodeType } from "@/generated/prisma";
@@ -49,7 +57,7 @@ export type NodeTypeOption = {
   label: string;
   description: string;
   icon: React.ComponentType<{ className?: string }> | string;
-  category: "trigger" | "execution" | "logic" | "data" | "utility" | "integration";
+  category: "trigger" | "execution" | "logic" | "data" | "utility" | "integration" | "ai";
 };
 
 const triggerNodes: NodeTypeOption[] = [
@@ -86,6 +94,13 @@ const triggerNodes: NodeTypeOption[] = [
     label: "Schedule",
     description: "Runs on a cron schedule",
     icon: ClockIcon,
+    category: "trigger",
+  },
+  {
+    type: NodeType.CHAT_TRIGGER,
+    label: "Chat",
+    description: "Runs when a chat message is received",
+    icon: MessageCircleIcon,
     category: "trigger",
   },
 ];
@@ -173,6 +188,16 @@ const integrationNodes: NodeTypeOption[] = [
   { type: NodeType.MYSQL_QUERY, label: "MySQL", description: "Execute SQL on MySQL", icon: DatabaseIcon, category: "integration" },
 ];
 
+const aiNodes: NodeTypeOption[] = [
+  { type: NodeType.AI_AGENT, label: "AI Agent", description: "AI agent with tool use", icon: BotIcon, category: "ai" },
+  { type: NodeType.OLLAMA, label: "Ollama", description: "Run local LLMs (Llama, Mistral)", icon: CpuIcon, category: "ai" },
+  { type: NodeType.TEXT_CLASSIFIER, label: "Text Classifier", description: "Classify text into categories", icon: TagsIcon, category: "ai" },
+  { type: NodeType.SENTIMENT_ANALYSIS, label: "Sentiment Analysis", description: "Analyze text sentiment", icon: HeartIcon, category: "ai" },
+  { type: NodeType.INFORMATION_EXTRACTOR, label: "Info Extractor", description: "Extract structured data from text", icon: FileSearchIcon, category: "ai" },
+  { type: NodeType.AI_TRANSFORM, label: "AI Transform", description: "Transform data with AI", icon: SparklesIcon, category: "ai" },
+  { type: NodeType.SUMMARIZATION, label: "Summarize", description: "Summarize text automatically", icon: FileText2Icon, category: "ai" },
+];
+
 const utilityNodes: NodeTypeOption[] = [
   {
     type: NodeType.STICKY_NOTE,
@@ -183,7 +208,7 @@ const utilityNodes: NodeTypeOption[] = [
   },
 ];
 
-const allNodes = [...triggerNodes, ...executionNodes, ...integrationNodes, ...logicNodes, ...dataNodes, ...utilityNodes];
+const allNodes = [...triggerNodes, ...executionNodes, ...integrationNodes, ...aiNodes, ...logicNodes, ...dataNodes, ...utilityNodes];
 
 function NodeIcon({ icon, label }: { icon: NodeTypeOption["icon"]; label: string }) {
   if (typeof icon === "string") {
@@ -236,6 +261,7 @@ export function NodeLibrary({ className }: NodeLibraryProps) {
   const filteredTriggers = filtered.filter((n) => n.category === "trigger");
   const filteredExecutions = filtered.filter((n) => n.category === "execution");
   const filteredIntegrations = filtered.filter((n) => n.category === "integration");
+  const filteredAi = filtered.filter((n) => n.category === "ai");
   const filteredLogic = filtered.filter((n) => n.category === "logic");
   const filteredData = filtered.filter((n) => n.category === "data");
   const filteredUtilities = filtered.filter((n) => n.category === "utility");
@@ -285,6 +311,19 @@ export function NodeLibrary({ className }: NodeLibraryProps) {
                 Integrations
               </p>
               {filteredIntegrations.map((node) => (
+                <DraggableNodeItem key={node.type} node={node} />
+              ))}
+            </div>
+          </>
+        )}
+        {filteredAi.length > 0 && (
+          <>
+            <Separator className="my-1" />
+            <div className="px-3 pb-2">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1 px-3">
+                AI & LLM
+              </p>
+              {filteredAi.map((node) => (
                 <DraggableNodeItem key={node.type} node={node} />
               ))}
             </div>
