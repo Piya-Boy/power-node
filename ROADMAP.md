@@ -296,10 +296,21 @@
 - [x] **Workflow Scheduling UI** — cron parser, calendar day/week view, busiest day, total runs
 - [x] **Cost Tracking per Workflow** — 8 model pricing tables, token cost, execution cost, workflow summary
 - [x] **Dependency Graph** — callers/callees, transitive deps, cycle detection, topological sort, safe-to-delete
-- [ ] **Workflow Testing Suite** — เขียน test case สำหรับ workflow รัน regression test อัตโนมัติ
+- [x] **Workflow Testing Suite** — 11 assertion operators, test runner, suite aggregation, tag filtering
+- [x] **Dependency Graph** — callers/callees, cycle detection, topological sort, safe-to-delete
 - [ ] **Multi-language Node (Go, Ruby, PHP)** — Code node รองรับภาษาเพิ่มจาก JS
 - [ ] **On-premise Data Residency** — เลือก region ที่จะ store ข้อมูล สำหรับ compliance
 - [ ] **Workflow Documentation Generator** — AI auto-generate documentation จาก workflow
+
+---
+
+## ✅ Phase 31-32 — Testing & Variable System
+
+> ทำให้ workflow มีความน่าเชื่อถือและ configurability สูง
+
+- [x] **Workflow Testing Suite** — 11 assertion operators (equals/contains/greater_than/regex/has_key/array_length/etc), test case runner, suite aggregation, tag filtering
+- [x] **Variable System** — scoped variables (global/project/workflow), env filtering (dev/staging/prod), type parsing (string/number/boolean/json/secret), template interpolation `{{VAR_NAME}}`, validation
+- [x] **Dependency Graph** — callers, callees, transitive deps, cycle detection (DFS), topological sort (Kahn's), max depth, safe-to-delete
 
 ---
 
@@ -321,7 +332,9 @@
 | Phase 27 — MCP | ✅ Done | 8 MCP tools, scope auth, response helpers |
 | Phase 28 — Ecosystem | ✅ Done | Marketplace, notifications, custom node SDK |
 | Phase 29 — Advanced UX | ✅ Done | Schedule calendar, cost tracking, dependency graph |
+| Phase 30 — Custom Node SDK | ✅ Done | Node definition, validation, field types, search |
+| Phase 31 — Workflow Testing | ✅ Done | 11 assertion operators, test runner, suite aggregation |
+| Phase 32 — Variable System | ✅ Done | Scoped variables, env filtering, template interpolation |
 | SSO / SAML | ⏳ Planned | Enterprise identity provider |
 | Multi-environment | ⏳ Planned | dev / staging / prod |
 | MCP HTTP Endpoint | ⏳ Planned | Live MCP server for Claude/Cursor |
-| Workflow Testing Suite | ⏳ Planned | Regression tests for workflows |
