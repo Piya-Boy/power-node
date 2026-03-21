@@ -92,8 +92,9 @@ describe("Workflow Metrics", () => {
     });
 
     it("should count records per day", () => {
-      const today = new Date();
-      today.setHours(12, 0, 0, 0);
+      // Use UTC noon to avoid timezone-shift issues with toISOString()
+      const now = new Date();
+      const today = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 12, 0, 0));
       const records: ExecutionRecord[] = [
         makeRecord("e1", "wf1", "SUCCESS", today, new Date(today.getTime() + 1000)),
         makeRecord("e2", "wf1", "FAILED", today),
