@@ -445,6 +445,61 @@
 
 ---
 
+## ✅ Phase 44 — Workflow Scanner (Security)
+
+- [x] **Pattern Detection** — scans workflow nodes for hardcoded secrets, credentials, SQL injection risks
+- [x] **Severity Classification** — critical/high/medium/low per finding
+- [x] **Node-level Findings** — pinpoints exact nodeId and field
+- [x] **Summary Report** — total findings, by severity, safe-to-deploy flag
+
+---
+
+## ✅ Phase 45 — Self-hosted Deployment Configuration
+
+- [x] **validateDeploymentConfig** — validates Docker/K8s config: port, URLs, secret length, SSL, scaling
+- [x] **getRequiredEnvVars** — returns required/optional/secret env vars based on providers/storage/queue
+- [x] **getMissingEnvVars** — diff between required and provided env vars
+- [x] **estimateResourceRequirements** — CPU/memory estimation from concurrency + memory params
+- [x] **generateDockerComposeSpec** — minimal docker-compose spec with app/postgres/redis services
+- [x] **validateHealthCheck** — validates path, interval, timeout, failure threshold
+- [x] **getDefaultHealthCheck** — returns `/api/health` with sensible defaults (57 tests)
+
+---
+
+## ✅ Phase 46 — Node Template Library
+
+- [x] **createNodeTemplate** — create reusable node template with defaults
+- [x] **validateNodeTemplate** — semver version, 0-5 rating, valid category, required fields
+- [x] **instantiateTemplate** — create WorkflowNode from template with data/position overrides
+- [x] **searchTemplates** — case-insensitive search across name/description/tags/integration
+- [x] **filterTemplatesByCategory / filterTemplatesByIntegration** — axis filters
+- [x] **sortTemplates** — name/popularity/recent/rating sort orders
+- [x] **buildTemplateIndex** — Map-based multi-axis index (id/category/integration/tag/nameTokens)
+- [x] **getRelatedTemplates** — scored related templates (category+integration+shared tags)
+- [x] **computeTemplateStats** — totals, avg rating, most popular, highest rated
+- [x] **exportTemplate / importTemplate** — JSON roundtrip with validation
+- [x] **mergeTemplateDefaults** — merge node defaults with template precedence (68 tests)
+
+---
+
+## ✅ Phase 47 — Audit Log Formatter
+
+- [x] **createAuditEvent** — structured audit event with auto id/timestamp
+- [x] **formatAuditEvent** — human-readable single-line format
+- [x] **formatAuditEventJson** — pretty JSON output
+- [x] **formatAuditEventCef** — ArcSight CEF format for SIEM (severity 3/5/8/10)
+- [x] **formatAuditEventLeef** — IBM QRadar LEEF format (tab-delimited attributes)
+- [x] **maskSensitiveFields** — mask password/token/secret/apiKey in metadata
+- [x] **redactPii** — redact actor email/IP + regex-based metadata redaction
+- [x] **filterAuditEvents** — filter by date range/userId/action/resource/outcome/severity/IP
+- [x] **groupAuditEvents** — group by action/actor.id/resource.type/severity/outcome/date
+- [x] **computeAuditStats** — byOutcome/bySeverity/byAction/byActor + success rate
+- [x] **detectAnomalies** — brute-force logins, action flood, IP scatter detection
+- [x] **generateAuditReport** — full report with stats, anomalies, top actions/actors
+- [x] **exportAuditLog** — export as JSON/CSV/CEF (75 tests)
+
+---
+
 ## 📊 Progress Summary
 
 | Phase | Status | Highlights |
@@ -477,5 +532,9 @@
 | Phase 41 — White-labeling | ✅ Done | Brand colors, CSS themes, embed URL, iframe snippet (38 tests) |
 | Phase 42 — Live Collaboration | ✅ Done | Presence, node locks, edit history, conflict detection (38 tests) |
 | Phase 43 — Data Residency | ✅ Done | GDPR compliance, retention, DSR, consent management (42 tests) |
-| **Total Tests** | **1629** | **70 test files** |
+| Phase 44 — Workflow Scanner | ✅ Done | Security pattern detection, severity classification (tests) |
+| Phase 45 — Deployment Config | ✅ Done | Docker/K8s validation, env vars, health check, resource estimation (57 tests) |
+| Phase 46 — Node Template Library | ✅ Done | Create/validate/search/sort/index/export templates (68 tests) |
+| Phase 47 — Audit Log Formatter | ✅ Done | CEF/LEEF/JSON/CSV export, PII redaction, anomaly detection (75 tests) |
+| **Total Tests** | **1829** | **74 test files** |
 | MCP HTTP Endpoint | ⏳ Planned | Live MCP server for Claude/Cursor |
