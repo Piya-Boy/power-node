@@ -361,3 +361,578 @@ describe("summarizeDiff", () => {
     expect(summary).toContain("removed 1 connection");
   });
 });
+
+// ─── Phase 49: Typed Diff Engine Tests ───────────────────────────────────────
+
+import {
+  diffNodes,
+  diffEdges,
+  diffSettings,
+  diffSnapshots,
+  isBreakingChange,
+  summarizeDiffEntries,
+  applyDiff,
+  invertDiff,
+  mergeDiffs,
+  formatDiffEntry,
+  formatDiff,
+  filterDiff,
+  isDiffEmpty,
+  type WorkflowNode,
+  type WorkflowEdge,
+  type WorkflowVersionSnapshot,
+  type DiffEntry,
+  type WorkflowDiff,
+} from "./workflow-diff";
+
+function makeWNode(id: string, overrides: Partial<WorkflowNode> = {}): WorkflowNode {
+  return {
+    id,
+    type: "http",
+    label: `Node ${id}`,
+    config: {},
+    position: { x: 0, y: 0 },
+    ...overrides,
+  };
+}
+
+function makeWEdge(id: string, overrides: Partial<WorkflowEdge> = {}): WorkflowEdge {
+  return {
+    id,
+    source: "n1",
+    target: "n2",
+    ...overrides,
+  };
+}
+
+function makeVersionSnapshot(overrides: Partial<WorkflowVersionSnapshot> = {}): WorkflowVersionSnapshot {
+  return {
+    id: "snap-1",
+    workflowId: "wf-1",
+    version: 1,
+    name: "My Workflow",
+    nodes: [],
+    edges: [],
+    settings: {},
+    createdAt: new Date("2024-01-01T00:00:00Z"),
+    ...overrides,
+  };
+}
+
+function makeDiff(overrides: Partial<WorkflowDiff> = {}): WorkflowDiff {
+  return {
+    fromVersion: 1,
+    toVersion: 2,
+    entries: [],
+    summary: { added: 0, removed: 0, updated: 0, moved: 0 },
+    hasBreakingChanges: false,
+    breakingReasons: [],
+    ...overrides,
+  };
+}
+
+// ─── diffNodes ────────────────────────────────────────────────────────────────
+
+describe("diffNodes (Phase 49)", () => {
+  it("returns empty array for identical nodes", () => {
+    const nodes = [makeWNode("n1"), makeWNode("n2")];
+    expect(diffNodes(nodes, nodes)).toHaveLength(0);
+  });
+
+  it("detects added node", () => {
+    const entries = diffNodes([makeWNode("n1")], [makeWNode("n1"), makeWNode("n2")]);
+    const added = entries.filter((e) => e.operation === "add");
+    expect(added).toHaveLength(1);
+    expect(added[0].targetId).toBe("n2");
+  });
+
+  it("detects removed node", () => {
+    const entries = diffNodes([makeWNode("n1"), makeWNode("n2")], [makeWNode("n1")]);
+    const removed = entries.filter((e) => e.operation === "remove");
+    expect(removed).toHaveLength(1);
+    expect(removed[0].targetId).toBe("n2");
+  });
+
+  it("detects position move", () => {
+    const old = [makeWNode("n1", { position: { x: 0, y: 0 } })];
+    const next = [makeWNode("n1", { position: { x: 100, y: 200 } })];
+    const entries = diffNodes(old, next);
+    const moved = entries.filter((e) => e.operation === "move");
+    expect(moved).toHaveLength(1);
+    expect(moved[0].path).toBe("position");
+  });
+
+  it("detects type change", () => {
+    const old = [makeWNode("n1", { type: "http" })];
+    const next = [makeWNode("n1", { type: "code" })];
+    const entries = diffNodes(old, next);
+    const updated = entries.filter((e) => e.operation === "update" && e.path === "type");
+    expect(updated).toHaveLength(1);
+  });
+
+  it("detects label change", () => {
+    const old = [makeWNode("n1", { label: "Old" })];
+    const next = [makeWNode("n1", { label: "New" })];
+    const entries = diffNodes(old, next);
+    const updated = entries.filter((e) => e.path === "label");
+    expect(updated).toHaveLength(1);
+    expect(updated[0].oldValue).toBe("Old");
+    expect(updated[0].newValue).toBe("New");
+  });
+
+  it("detects config change", () => {
+    const old = [makeWNode("n1", { config: { url: "http://old.com" } })];
+    const next = [makeWNode("n1", { config: { url: "http://new.com" } })];
+    const entries = diffNodes(old, next);
+    const updated = entries.filter((e) => e.operation === "update");
+    expect(updated.length).toBeGreaterThan(0);
+  });
+});
+
+// ─── diffEdges ────────────────────────────────────────────────────────────────
+
+describe("diffEdges (Phase 49)", () => {
+  it("returns empty for identical edges", () => {
+    const edges = [makeWEdge("e1")];
+    expect(diffEdges(edges, edges)).toHaveLength(0);
+  });
+
+  it("detects added edge", () => {
+    const entries = diffEdges([], [makeWEdge("e1")]);
+    expect(entries).toHaveLength(1);
+    expect(entries[0].operation).toBe("add");
+  });
+
+  it("detects removed edge", () => {
+    const entries = diffEdges([makeWEdge("e1")], []);
+    expect(entries).toHaveLength(1);
+    expect(entries[0].operation).toBe("remove");
+  });
+
+  it("detects connection change", () => {
+    const old = [makeWEdge("e1", { source: "n1", target: "n2" })];
+    const next = [makeWEdge("e1", { source: "n1", target: "n3" })];
+    const entries = diffEdges(old, next);
+    const updated = entries.filter((e) => e.path === "connection");
+    expect(updated).toHaveLength(1);
+  });
+
+  it("detects label change", () => {
+    const old = [makeWEdge("e1", { label: "Old" })];
+    const next = [makeWEdge("e1", { label: "New" })];
+    const entries = diffEdges(old, next);
+    const updated = entries.filter((e) => e.path === "label");
+    expect(updated).toHaveLength(1);
+  });
+});
+
+// ─── diffSettings ─────────────────────────────────────────────────────────────
+
+describe("diffSettings (Phase 49)", () => {
+  it("returns empty for identical settings", () => {
+    const settings = { timeout: 30, retries: 3 };
+    expect(diffSettings(settings, settings)).toHaveLength(0);
+  });
+
+  it("detects added setting", () => {
+    const entries = diffSettings({}, { newKey: "value" });
+    expect(entries).toHaveLength(1);
+    expect(entries[0].operation).toBe("add");
+  });
+
+  it("detects removed setting", () => {
+    const entries = diffSettings({ oldKey: "value" }, {});
+    expect(entries).toHaveLength(1);
+    expect(entries[0].operation).toBe("remove");
+  });
+
+  it("detects updated setting", () => {
+    const entries = diffSettings({ key: "old" }, { key: "new" });
+    expect(entries).toHaveLength(1);
+    expect(entries[0].operation).toBe("update");
+    expect(entries[0].oldValue).toBe("old");
+    expect(entries[0].newValue).toBe("new");
+  });
+
+  it("handles nested settings", () => {
+    const entries = diffSettings(
+      { db: { host: "localhost" } },
+      { db: { host: "prod.db.com" } },
+    );
+    expect(entries.length).toBeGreaterThan(0);
+  });
+});
+
+// ─── diffSnapshots ────────────────────────────────────────────────────────────
+
+describe("diffSnapshots (Phase 49)", () => {
+  it("returns empty diff for identical snapshots", () => {
+    const snap = makeVersionSnapshot({
+      nodes: [makeWNode("n1")],
+      edges: [makeWEdge("e1")],
+      settings: { timeout: 30 },
+    });
+    const diff = diffSnapshots(snap, snap);
+    expect(diff.entries).toHaveLength(0);
+    expect(diff.hasBreakingChanges).toBe(false);
+  });
+
+  it("detects version numbers correctly", () => {
+    const from = makeVersionSnapshot({ version: 1 });
+    const to = makeVersionSnapshot({ version: 3 });
+    const diff = diffSnapshots(from, to);
+    expect(diff.fromVersion).toBe(1);
+    expect(diff.toVersion).toBe(3);
+  });
+
+  it("marks breaking when node is removed", () => {
+    const from = makeVersionSnapshot({ nodes: [makeWNode("n1")], version: 1 });
+    const to = makeVersionSnapshot({ nodes: [], version: 2 });
+    const diff = diffSnapshots(from, to);
+    expect(diff.hasBreakingChanges).toBe(true);
+    expect(diff.breakingReasons.length).toBeGreaterThan(0);
+  });
+
+  it("marks breaking when edge is removed", () => {
+    const from = makeVersionSnapshot({ edges: [makeWEdge("e1")], version: 1 });
+    const to = makeVersionSnapshot({ edges: [], version: 2 });
+    const diff = diffSnapshots(from, to);
+    expect(diff.hasBreakingChanges).toBe(true);
+  });
+});
+
+// ─── isBreakingChange ─────────────────────────────────────────────────────────
+
+describe("isBreakingChange (Phase 49)", () => {
+  it("returns true for removed node", () => {
+    const entry: DiffEntry = {
+      operation: "remove",
+      target: "node",
+      targetId: "n1",
+      description: "removed",
+    };
+    expect(isBreakingChange(entry)).toBe(true);
+  });
+
+  it("returns true for removed edge", () => {
+    const entry: DiffEntry = {
+      operation: "remove",
+      target: "edge",
+      targetId: "e1",
+      description: "removed",
+    };
+    expect(isBreakingChange(entry)).toBe(true);
+  });
+
+  it("returns true for node type change", () => {
+    const entry: DiffEntry = {
+      operation: "update",
+      target: "node",
+      targetId: "n1",
+      path: "type",
+      description: "type changed",
+    };
+    expect(isBreakingChange(entry)).toBe(true);
+  });
+
+  it("returns false for added node", () => {
+    const entry: DiffEntry = {
+      operation: "add",
+      target: "node",
+      targetId: "n1",
+      description: "added",
+    };
+    expect(isBreakingChange(entry)).toBe(false);
+  });
+
+  it("returns false for setting change", () => {
+    const entry: DiffEntry = {
+      operation: "update",
+      target: "setting",
+      targetId: "timeout",
+      description: "setting updated",
+    };
+    expect(isBreakingChange(entry)).toBe(false);
+  });
+});
+
+// ─── summarizeDiffEntries ─────────────────────────────────────────────────────
+
+describe("summarizeDiffEntries (Phase 49)", () => {
+  it("returns zero counts for empty entries", () => {
+    const summary = summarizeDiffEntries([]);
+    expect(summary).toEqual({ added: 0, removed: 0, updated: 0, moved: 0 });
+  });
+
+  it("counts each operation type correctly", () => {
+    const entries: DiffEntry[] = [
+      { operation: "add", target: "node", targetId: "n1", description: "a" },
+      { operation: "add", target: "node", targetId: "n2", description: "b" },
+      { operation: "remove", target: "edge", targetId: "e1", description: "c" },
+      { operation: "update", target: "setting", targetId: "s1", description: "d" },
+      { operation: "move", target: "node", targetId: "n3", description: "e" },
+    ];
+    const summary = summarizeDiffEntries(entries);
+    expect(summary.added).toBe(2);
+    expect(summary.removed).toBe(1);
+    expect(summary.updated).toBe(1);
+    expect(summary.moved).toBe(1);
+  });
+});
+
+// ─── applyDiff ────────────────────────────────────────────────────────────────
+
+describe("applyDiff (Phase 49)", () => {
+  it("adds a node", () => {
+    const snap = makeVersionSnapshot({ nodes: [] });
+    const newNode = makeWNode("n1");
+    const diff = makeDiff({
+      entries: [{ operation: "add", target: "node", targetId: "n1", newValue: newNode, description: "add" }],
+    });
+    const result = applyDiff(snap, diff);
+    expect(result.nodes).toHaveLength(1);
+  });
+
+  it("removes a node", () => {
+    const snap = makeVersionSnapshot({ nodes: [makeWNode("n1")] });
+    const diff = makeDiff({
+      entries: [{ operation: "remove", target: "node", targetId: "n1", description: "remove" }],
+    });
+    const result = applyDiff(snap, diff);
+    expect(result.nodes).toHaveLength(0);
+  });
+
+  it("adds an edge", () => {
+    const snap = makeVersionSnapshot({ edges: [] });
+    const newEdge = makeWEdge("e1");
+    const diff = makeDiff({
+      entries: [{ operation: "add", target: "edge", targetId: "e1", newValue: newEdge, description: "add" }],
+    });
+    const result = applyDiff(snap, diff);
+    expect(result.edges).toHaveLength(1);
+  });
+
+  it("removes an edge", () => {
+    const snap = makeVersionSnapshot({ edges: [makeWEdge("e1")] });
+    const diff = makeDiff({
+      entries: [{ operation: "remove", target: "edge", targetId: "e1", description: "remove" }],
+    });
+    const result = applyDiff(snap, diff);
+    expect(result.edges).toHaveLength(0);
+  });
+
+  it("updates version number", () => {
+    const snap = makeVersionSnapshot({ version: 1 });
+    const diff = makeDiff({ fromVersion: 1, toVersion: 5 });
+    const result = applyDiff(snap, diff);
+    expect(result.version).toBe(5);
+  });
+
+  it("adds a setting", () => {
+    const snap = makeVersionSnapshot({ settings: {} });
+    const diff = makeDiff({
+      entries: [{ operation: "add", target: "setting", targetId: "timeout", path: "timeout", newValue: 30, description: "add" }],
+    });
+    const result = applyDiff(snap, diff);
+    expect(result.settings["timeout"]).toBe(30);
+  });
+});
+
+// ─── invertDiff ───────────────────────────────────────────────────────────────
+
+describe("invertDiff (Phase 49)", () => {
+  it("swaps add → remove", () => {
+    const diff = makeDiff({
+      entries: [{ operation: "add", target: "node", targetId: "n1", description: "add" }],
+    });
+    const inverted = invertDiff(diff);
+    expect(inverted.entries[0].operation).toBe("remove");
+  });
+
+  it("swaps remove → add", () => {
+    const diff = makeDiff({
+      entries: [{ operation: "remove", target: "node", targetId: "n1", description: "remove" }],
+    });
+    const inverted = invertDiff(diff);
+    expect(inverted.entries[0].operation).toBe("add");
+  });
+
+  it("swaps version numbers", () => {
+    const diff = makeDiff({ fromVersion: 1, toVersion: 3 });
+    const inverted = invertDiff(diff);
+    expect(inverted.fromVersion).toBe(3);
+    expect(inverted.toVersion).toBe(1);
+  });
+
+  it("swaps oldValue and newValue", () => {
+    const diff = makeDiff({
+      entries: [{
+        operation: "update",
+        target: "setting",
+        targetId: "x",
+        oldValue: "old",
+        newValue: "new",
+        description: "update",
+      }],
+    });
+    const inverted = invertDiff(diff);
+    expect(inverted.entries[0].oldValue).toBe("new");
+    expect(inverted.entries[0].newValue).toBe("old");
+  });
+});
+
+// ─── mergeDiffs ───────────────────────────────────────────────────────────────
+
+describe("mergeDiffs (Phase 49)", () => {
+  it("combines entries from both diffs", () => {
+    const a = makeDiff({
+      fromVersion: 1,
+      toVersion: 2,
+      entries: [{ operation: "add", target: "node", targetId: "n1", description: "a" }],
+    });
+    const b = makeDiff({
+      fromVersion: 2,
+      toVersion: 3,
+      entries: [{ operation: "remove", target: "edge", targetId: "e1", description: "b" }],
+    });
+    const merged = mergeDiffs(a, b);
+    expect(merged.entries).toHaveLength(2);
+  });
+
+  it("uses fromVersion of a and toVersion of b", () => {
+    const a = makeDiff({ fromVersion: 1, toVersion: 2 });
+    const b = makeDiff({ fromVersion: 2, toVersion: 5 });
+    const merged = mergeDiffs(a, b);
+    expect(merged.fromVersion).toBe(1);
+    expect(merged.toVersion).toBe(5);
+  });
+
+  it("marks breaking if any entry is breaking", () => {
+    const a = makeDiff({ fromVersion: 1, toVersion: 2 });
+    const b = makeDiff({
+      fromVersion: 2,
+      toVersion: 3,
+      entries: [{ operation: "remove", target: "node", targetId: "n1", description: "remove" }],
+    });
+    const merged = mergeDiffs(a, b);
+    expect(merged.hasBreakingChanges).toBe(true);
+  });
+});
+
+// ─── formatDiffEntry ─────────────────────────────────────────────────────────
+
+describe("formatDiffEntry (Phase 49)", () => {
+  it("formats an add entry", () => {
+    const entry: DiffEntry = {
+      operation: "add",
+      target: "node",
+      targetId: "n1",
+      description: "Added node",
+    };
+    const formatted = formatDiffEntry(entry);
+    expect(formatted).toContain("[+]");
+    expect(formatted).toContain("node:n1");
+  });
+
+  it("formats a remove entry", () => {
+    const entry: DiffEntry = {
+      operation: "remove",
+      target: "edge",
+      targetId: "e1",
+      description: "Removed edge",
+    };
+    const formatted = formatDiffEntry(entry);
+    expect(formatted).toContain("[-]");
+  });
+
+  it("includes path when present", () => {
+    const entry: DiffEntry = {
+      operation: "update",
+      target: "node",
+      targetId: "n1",
+      path: "config.url",
+      description: "Updated",
+    };
+    const formatted = formatDiffEntry(entry);
+    expect(formatted).toContain("[config.url]");
+  });
+});
+
+// ─── formatDiff ───────────────────────────────────────────────────────────────
+
+describe("formatDiff (Phase 49)", () => {
+  it("includes version info", () => {
+    const diff = makeDiff({ fromVersion: 1, toVersion: 2 });
+    const output = formatDiff(diff);
+    expect(output).toContain("v1");
+    expect(output).toContain("v2");
+  });
+
+  it("shows no changes for empty diff", () => {
+    const diff = makeDiff();
+    const output = formatDiff(diff);
+    expect(output).toContain("no changes");
+  });
+
+  it("lists entries", () => {
+    const diff = makeDiff({
+      entries: [{ operation: "add", target: "node", targetId: "n1", description: "Added node" }],
+    });
+    const output = formatDiff(diff);
+    expect(output).toContain("node:n1");
+  });
+});
+
+// ─── filterDiff ───────────────────────────────────────────────────────────────
+
+describe("filterDiff (Phase 49)", () => {
+  it("filters to only node entries", () => {
+    const diff = makeDiff({
+      entries: [
+        { operation: "add", target: "node", targetId: "n1", description: "a" },
+        { operation: "add", target: "edge", targetId: "e1", description: "b" },
+        { operation: "update", target: "setting", targetId: "s1", description: "c" },
+      ],
+    });
+    const filtered = filterDiff(diff, ["node"]);
+    expect(filtered.entries).toHaveLength(1);
+    expect(filtered.entries[0].target).toBe("node");
+  });
+
+  it("filters to multiple targets", () => {
+    const diff = makeDiff({
+      entries: [
+        { operation: "add", target: "node", targetId: "n1", description: "a" },
+        { operation: "add", target: "edge", targetId: "e1", description: "b" },
+        { operation: "update", target: "setting", targetId: "s1", description: "c" },
+      ],
+    });
+    const filtered = filterDiff(diff, ["node", "edge"]);
+    expect(filtered.entries).toHaveLength(2);
+  });
+
+  it("returns empty when no matching targets", () => {
+    const diff = makeDiff({
+      entries: [
+        { operation: "add", target: "node", targetId: "n1", description: "a" },
+      ],
+    });
+    const filtered = filterDiff(diff, ["setting"]);
+    expect(filtered.entries).toHaveLength(0);
+  });
+});
+
+// ─── isDiffEmpty ─────────────────────────────────────────────────────────────
+
+describe("isDiffEmpty (Phase 49)", () => {
+  it("returns true for empty diff", () => {
+    expect(isDiffEmpty(makeDiff())).toBe(true);
+  });
+
+  it("returns false for non-empty diff", () => {
+    const diff = makeDiff({
+      entries: [{ operation: "add", target: "node", targetId: "n1", description: "a" }],
+    });
+    expect(isDiffEmpty(diff)).toBe(false);
+  });
+});

@@ -500,6 +500,60 @@
 
 ---
 
+## ✅ Phase 48 — Rate Limiter Engine
+
+- [x] **createRule** — create a rate limit rule with sensible defaults
+- [x] **buildRateLimitKey** — unique key from scope + context (rl:per-user:userId:rule-id)
+- [x] **checkFixedWindow** — fixed window check with window reset logic
+- [x] **checkSlidingWindow** — sliding window check using request timestamp array
+- [x] **checkTokenBucket** — token bucket with time-based refill and burst limit
+- [x] **consumeTokens** — consume tokens from bucket state with refill
+- [x] **shouldSkip** — bypass rate limiting for disabled rules or matching conditions
+- [x] **getRetryAfter** — seconds until retry from result
+- [x] **formatRateLimitHeaders** — X-RateLimit-* / Retry-After HTTP headers
+- [x] **mergeRules** — merge two rules with deduped skipConditions
+- [x] **validateRule** — validate algorithm/scope/limit/burst/cost fields
+- [x] **computeRateLimitStats** — totalAllowed/totalBlocked/blockRate/avgRemaining
+- [x] **getRateLimitSummary** — human-readable per-rule descriptions (70 tests)
+
+---
+
+## ✅ Phase 49 — Workflow Diff & Version Compare
+
+- [x] **diffNodes** — detect added/removed/moved/updated nodes with config field diffs
+- [x] **diffEdges** — detect added/removed/updated edges (connection + label changes)
+- [x] **diffSettings** — deep diff flattened settings key-value pairs
+- [x] **diffSnapshots** — full diff between two WorkflowVersionSnapshot instances
+- [x] **isBreakingChange** — remove node/edge or change node type = breaking
+- [x] **summarizeDiffEntries** — count by add/remove/update/move
+- [x] **applyDiff** — apply diff forward (add/remove nodes, edges, settings)
+- [x] **invertDiff** — swap add↔remove, swap old↔new values for rollback
+- [x] **mergeDiffs** — combine two sequential diffs into one
+- [x] **formatDiffEntry** — human-readable single entry with [+/-/~/→] prefix
+- [x] **formatDiff** — full formatted diff with summary and breaking change note
+- [x] **filterDiff** — filter diff to specific DiffTarget types
+- [x] **isDiffEmpty** — check if diff has no entries (78 tests, includes 14 legacy tests)
+
+---
+
+## ✅ Phase 50 — AI Node Prompt Templates
+
+- [x] **createTemplate** — create PromptTemplate with defaults and auto-detected variables
+- [x] **detectVariables** — find all {{variableName}} placeholders via regex
+- [x] **validateTemplate** — check id/name/role/variables consistency/version/temperature
+- [x] **renderTemplate** — substitute variables, use defaults, track used/missing
+- [x] **renderTemplateStrict** — fail fast if any required variable is missing
+- [x] **estimateTokens** — rough token estimate (wordCount * 1.3, rounded up)
+- [x] **buildConversation** — render multiple templates as a conversation array
+- [x] **mergeVariables** — merge default + override variable maps
+- [x] **extractVariableSchema** — build name→TemplateVariable schema map
+- [x] **validateVariableValue** — type check + regex pattern validation per variable
+- [x] **searchTemplates** — case-insensitive search by name/description/tags
+- [x] **cloneTemplate** — deep clone with new id and timestamps
+- [x] **computeTemplateStats** — totalTemplates/byRole/byModel/avgVariables/withDefaults (71 tests)
+
+---
+
 ## 📊 Progress Summary
 
 | Phase | Status | Highlights |
@@ -536,5 +590,8 @@
 | Phase 45 — Deployment Config | ✅ Done | Docker/K8s validation, env vars, health check, resource estimation (57 tests) |
 | Phase 46 — Node Template Library | ✅ Done | Create/validate/search/sort/index/export templates (68 tests) |
 | Phase 47 — Audit Log Formatter | ✅ Done | CEF/LEEF/JSON/CSV export, PII redaction, anomaly detection (75 tests) |
-| **Total Tests** | **1829** | **74 test files** |
+| Phase 48 — Rate Limiter Engine | ✅ Done | Fixed/sliding/token-bucket algorithms, 5 scopes, headers (70 tests) |
+| Phase 49 — Workflow Diff & Version Compare | ✅ Done | diffNodes/edges/settings/snapshots, invert/merge/apply/format (78 tests) |
+| Phase 50 — AI Prompt Templates | ✅ Done | Create/render/validate templates, variables, token estimate (71 tests) |
+| **Total Tests** | **2046** | **76 test files** |
 | MCP HTTP Endpoint | ⏳ Planned | Live MCP server for Claude/Cursor |
