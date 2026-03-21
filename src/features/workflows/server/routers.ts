@@ -7,6 +7,9 @@ import { PAGINATION } from "@/config/constants";
 import { NodeType } from "@/generated/prisma";
 import { inngest } from "@/inngest/client";
 import { sendWorkflowExecution } from "@/inngest/utils";
+import { generateApiKey } from "@/features/workflows/lib/api-key";
+import { generateWebhookSecret, getWebhookUrl } from "@/features/workflows/lib/webhook-url";
+import { exportWorkflow } from "@/features/workflows/lib/export-import";
 
 export const workflowsRouter = createTRPCRouter({
   execute: protectedProcedure
@@ -157,6 +160,109 @@ export const workflowsRouter = createTRPCRouter({
         nodes,
         edges,
       };
+    }),
+  updateSettings: protectedProcedure
+    .input(
+      z.object({
+        id: z.string(),
+        name: z.string().min(1).optional(),
+        description: z.string().optional(),
+        tags: z.array(z.string()).optional(),
+        isActive: z.boolean().optional(),
+      }),
+    )
+    .mutation(({ ctx, input }) => {
+      const { id, ...data } = input;
+      return prisma.workflow.update({
+        where: { id, userId: ctx.auth.user.id },
+        data,
+      });
+    }),
+  generateWebhookUrl: protectedProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const secret = generateWebhookSecret();
+      const workflow = await prisma.workflow.update({
+        where: { id: input.id, userId: ctx.auth.user.id },
+        data: { webhookSecret: secret },
+      });
+      return {
+        secret,
+        url: getWebhookUrl(secret),
+      };
+    }),
+  exportWorkflow: protectedProcedure
+    .input(z.object({ id: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const workflow = await prisma.workflow.findUniqueOrThrow({
+        where: { id: input.id, userId: ctx.auth.user.id },
+        include: { nodes: true, connections: true },
+      });
+      return exportWorkflow(
+        { name: workflow.name, description: workflow.description, tags: workflow.tags },
+        workflow.nodes.map((n) => ({
+          id: n.id,
+          type: n.type,
+          name: n.name,
+          position: n.position,
+          data: n.data,
+        })),
+        workflow.connections.map((c) => ({
+          fromNodeId: c.fromNodeId,
+          toNodeId: c.toNodeId,
+          fromOutput: c.fromOutput,
+          toInput: c.toInput,
+        })),
+      );
+    }),
+  // API Key management
+  createApiKey: protectedProcedure
+    .input(
+      z.object({
+        name: z.string().min(1),
+        workflowId: z.string().optional(),
+        expiresAt: z.string().datetime().optional(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const key = generateApiKey();
+      const apiKey = await prisma.apiKey.create({
+        data: {
+          name: input.name,
+          key,
+          userId: ctx.auth.user.id,
+          workflowId: input.workflowId,
+          expiresAt: input.expiresAt ? new Date(input.expiresAt) : null,
+        },
+      });
+      // Return the raw key only once (on creation)
+      return { id: apiKey.id, name: apiKey.name, key, createdAt: apiKey.createdAt };
+    }),
+  listApiKeys: protectedProcedure.query(async ({ ctx }) => {
+    const keys = await prisma.apiKey.findMany({
+      where: { userId: ctx.auth.user.id },
+      select: {
+        id: true,
+        name: true,
+        key: true,
+        workflowId: true,
+        lastUsedAt: true,
+        expiresAt: true,
+        createdAt: true,
+      },
+      orderBy: { createdAt: "desc" },
+    });
+    return keys.map((k) => ({
+      ...k,
+      key: `${k.key.slice(0, 7)}...${k.key.slice(-4)}`,
+    }));
+  }),
+  deleteApiKey: protectedProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(({ ctx, input }) => {
+      return prisma.apiKey.delete({
+        where: { id: input.id, userId: ctx.auth.user.id },
+      });
     }),
   getMany: protectedProcedure
     .input(
