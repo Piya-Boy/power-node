@@ -739,6 +739,49 @@
 
 ---
 
+## ✅ Phase 62 — Workflow Event Sourcing
+
+- [x] **createEvent** — typed event with metadata (userId, correlationId, causationId)
+- [x] **createEmptyState / applyEvent** — immutable state transitions for all 15 event types
+- [x] **replayEvents** — sort-and-fold events onto state
+- [x] **snapshotState** — serialize Map→Object for persistence
+- [x] **replayFromSnapshot** — restore from snapshot + tail events
+- [x] **appendEvent** — sequence-validated stream append
+- [x] **getEventsAfter / getEventsBetween** — stream slice queries
+- [x] **buildProjection / buildProjections** — lightweight read models
+- [x] **isTombstoned / filterActiveSteams** — soft-delete support (28 tests)
+
+---
+
+## ✅ Phase 63 — Workflow Localization & i18n
+
+- [x] **getLocaleConfig / getSupportedLocales / isSupported** — 10-locale registry
+- [x] **getTextDirection / isRtl** — LTR/RTL detection (Arabic, Hebrew)
+- [x] **interpolate / extractInterpolationKeys / validateTemplate** — {{var}} syntax
+- [x] **getPluralCategory / pluralize** — English, Arabic (6-form), Hebrew (4-form), Thai/JA/ZH/KO
+- [x] **formatNumber** — thousands separators, decimal, compact (K/M/B), percent
+- [x] **formatCurrency** — locale currency symbol, fraction digits
+- [x] **formatDate / formatTime** — locale date/time patterns (12h/24h)
+- [x] **formatRelativeTime** — "2 days ago" / "in 3 hours"
+- [x] **parseAcceptLanguage / buildAcceptLanguage** — HTTP header handling
+- [x] **buildCatalog / translate / findMissingTranslations** — translation catalog (59 tests)
+
+---
+
+## ✅ Phase 64 — Workflow Dependency Resolver
+
+- [x] **satisfiesVersion** — semver ^/~/>=/* constraint matching
+- [x] **findBestVersion** — highest matching from available list
+- [x] **resolveDependencies** — resolve against artifact registry; required/optional/version-mismatch
+- [x] **buildDependencyGraph** — adjacency from sub-workflow deps
+- [x] **detectCircularDependencies** — DFS cycle detection
+- [x] **getExecutionOrder** — Kahn topological sort (null on cycle)
+- [x] **getTransitiveDependencies / getReverseDependencies** — BFS graph traversal
+- [x] **createManifest / addDependency / removeDependency / validateManifest** — manifest lifecycle
+- [x] **summarizeDependencies** — count by dependency type (32 tests)
+
+---
+
 ## 📊 Progress Summary
 
 | Phase | Status | Highlights |
@@ -789,5 +832,8 @@
 | Phase 59 — Run Analytics & Alerting | ✅ Done | Run metrics, 6 alert conditions, rolling failure rate (42 tests) |
 | Phase 60 — Connection Validator | ✅ Done | Port compatibility, cycles, topo sort, upstream/downstream (33 tests) |
 | Phase 61 — Schedule Manager | ✅ Done | Cron parse/validate/describe, next-run, lifecycle, conflict (49 tests) |
-| **Total Tests** | **2676** | **87 test files** |
+| Phase 62 — Event Sourcing | ✅ Done | Create/apply/replay events, snapshot, stream, projections, tombstone (28 tests) |
+| Phase 63 — i18n Utilities | ✅ Done | 10 locales, RTL, interpolation, pluralization, date/currency/time (59 tests) |
+| Phase 64 — Dependency Resolver | ✅ Done | Semver matching, resolution, graph, cycles, topo-sort, transitive (32 tests) |
+| **Total Tests** | **2795** | **90 test files** |
 | MCP HTTP Endpoint | ⏳ Planned | Live MCP server for Claude/Cursor |
