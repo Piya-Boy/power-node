@@ -1019,5 +1019,14 @@
 | Phase 75 — Change Feed | ✅ Done | Field-level diffs, session grouping, history replay, point-in-time lookup, changelog (34 tests) |
 | Phase 76 — Condition Evaluator | ✅ Done | 20 operators, AND/OR/NOT compound, switch eval, filter/partition, describe (54 tests) |
 | Phase 77 — Pagination Helper | ✅ Done | Offset/cursor pagination, multi-sort, page numbers, named nav, URL query builder (40 tests) |
-| **Total Tests** | **3362** | **106 test files** |
+| Phase 78 — Event Scheduler | ✅ Done | Cron/interval/once/debounce/throttle triggers, next-run calc, run history, batch ops, stats (67 tests) |
+| Phase 79 — Data Transformer | ✅ Done | Field mapping, type coercion, flatten/unflatten, groupBy/pivot, template interpolation, pipeline (75 tests) |
+| Phase 80 — Error Catalog | ✅ Done | 12 built-in errors, HTTP/pattern classification, lifecycle, filtering, stats, serialization (54 tests) |
+| Phase 81 — Variable Interpolator | ✅ Done | VarStore, scoped vars, template tokenizer, 17 filters, deep interpolation, secret masking (63 tests) |
+| Phase 82 — Node Registry | ✅ Done | Node type catalog, registration, search, versioning, config validation, stats (55 tests) |
+| Phase 83 — Execution Planner | ✅ Done | Topo sort, cycle detection, critical path, parallel groups, plan validation, reachability (44 tests) |
+| Phase 84 — Output Mapper | ✅ Done | Field mapping, routing rules, fan-out/fan-in, normalization, output diffing (40 tests) |
+| Phase 85 — Secrets Rotation Manager | ✅ Done | Per-type policies, versioning, lifecycle, expiry checks, bulk queries, rotation history (51 tests) |
+| Phase 86 — Cache Manager | ✅ Done | LRU/LFU/FIFO/TTL eviction, TTL expiry, tag/scope/prefix invalidation, bulk ops, stats (34 tests) |
+| **Total Tests** | **3845** | **115 test files** |
 | MCP HTTP Endpoint | ⏳ Planned | Live MCP server for Claude/Cursor |
