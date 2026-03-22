@@ -849,6 +849,33 @@
 
 ---
 
+## ✅ Phase 71 — Workflow Access Log
+
+- [x] **createEntry / resetIdCounter** — entry factory with auto-incrementing IDs
+- [x] **filterEntries** — filter by actor/action/resource/outcome/IP/time/search
+- [x] **getEntriesInRange / getActorHistory / getResourceHistory / getDeniedEntries** — targeted queries
+- [x] **sortEntries** — chronological sort (newest/oldest first)
+- [x] **detectAnomalies** — high denial rate, rapid access, bulk delete, unusual IP
+- [x] **summarizeEntries** — totalEvents/outcomes/uniqueActors/resources/topActions/topActors
+- [x] **paginateEntries** — page/pageSize with hasNext/hasPrev/totalPages
+- [x] **applyRetention** — purge entries older than N days (33 tests)
+
+---
+
+## ✅ Phase 72 — Workflow Input Schema Validator
+
+- [x] **validateFormat** — email/url/uuid/date/datetime/ip format checks
+- [x] **validate** — recursive value validator against FieldSchema
+- [x] **String validation** — minLength/maxLength/pattern/enum/format
+- [x] **Number/Integer validation** — min/max/exclusive/multipleOf/enum
+- [x] **Boolean/null/any** — strict type matching + nullable support
+- [x] **Array validation** — items schema, minItems/maxItems, uniqueItems
+- [x] **Object validation** — required fields, additionalProperties, property defaults, nested paths
+- [x] **Coercion** — string↔number↔boolean type coercion with error on failure
+- [x] **validateRecord / extractFieldPaths / getRequiredPaths** — schema introspection (54 tests)
+
+---
+
 ## ✅ Phase 70 — Workflow Tag Manager
 
 - [x] **normalizeTagName / validateTagName** — lowercase, dash-normalize, length/char validation
@@ -921,5 +948,7 @@
 | Phase 68 — Node Execution Context | ✅ Done | Inputs, variables (dot-path), secrets, previous outputs, timeout, fork/merge (49 tests) |
 | Phase 69 — Metrics Aggregator | ✅ Done | Percentiles, time buckets, aggregation, trend extraction, fleet summary (41 tests) |
 | Phase 70 — Tag Manager | ✅ Done | Normalize, assign, filter (AND/OR/NOT), hierarchy, merge/delete, stats (51 tests) |
-| **Total Tests** | **3068** | **96 test files** |
+| Phase 71 — Access Log | ✅ Done | Entry creation, filter, anomaly detection (4 types), summary, pagination, retention (33 tests) |
+| Phase 72 — Input Schema Validator | ✅ Done | string/number/integer/boolean/null/any/array/object, formats, coercion, nested paths (54 tests) |
+| **Total Tests** | **3155** | **98 test files** |
 | MCP HTTP Endpoint | ⏳ Planned | Live MCP server for Claude/Cursor |
