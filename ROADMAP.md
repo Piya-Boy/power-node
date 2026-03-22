@@ -849,6 +849,45 @@
 
 ---
 
+## ✅ Phase 73 — Workflow Execution Tracer
+
+- [x] **createSpan / endSpan / addSpanEvent / setSpanAttribute** — span lifecycle
+- [x] **createTrace / addSpan / updateSpan / finalizeTrace** — trace management with auto-status
+- [x] **getChildSpans / getDescendants / getAncestorPath / getSpanDepth** — hierarchy traversal
+- [x] **getSpansByStatus / getSpansByKind** — filtering spans
+- [x] **computeCriticalPath** — longest sequential DFS path with total duration
+- [x] **summarizeSpans** — per-span summary with depth and childCount
+- [x] **getSlowestSpans / getErrorSpans / getDurationByKind** — analysis helpers
+- [x] **buildFlamegraph / getTraceSummary** — visualization and reporting (34 tests)
+
+---
+
+## ✅ Phase 74 — Workflow Feature Flags
+
+- [x] **getBucket** — FNV-1a deterministic 0–99 bucket for stable rollout
+- [x] **getAttribute** — dot-notation attribute lookup from evaluation context
+- [x] **evaluateCondition** — 12 operators: equals/contains/in/gt/matches/regex etc.
+- [x] **evaluateRule / evaluateFlag / evaluateAllFlags** — priority-ordered rule engine
+- [x] **createBooleanFlag / toggleFlag / addRule / removeRule / setRollout / archiveFlag** — lifecycle
+- [x] **validateFlag** — variations, defaultVariationId, rule references, rolloutPercent
+- [x] **computeFlagStats** — enabled/disabled/archived/byType counts (45 tests)
+
+---
+
+## ✅ Phase 75 — Workflow Change Feed
+
+- [x] **createChangeRecord / resetChangeIdSeq** — record factory with auto-ID
+- [x] **diffObjects** — field-level before/after diff with deep equality and ignore keys
+- [x] **getWorkflowChanges / getAuthorChanges / getTargetChanges / getChangesInWindow** — queries
+- [x] **getRecentChanges / getChangesForField** — targeted lookups
+- [x] **groupChangesBySession** — consecutive same-author changes within time gap
+- [x] **replayChanges** — forward-apply updates to reconstruct state
+- [x] **getFieldAtTime** — point-in-time field value lookup
+- [x] **buildChangelog** — date-grouped human-readable changelog
+- [x] **computeChangeStats** — byOperation/byTarget/byAuthor/mostChangedTargets/lastChanged (34 tests)
+
+---
+
 ## ✅ Phase 71 — Workflow Access Log
 
 - [x] **createEntry / resetIdCounter** — entry factory with auto-incrementing IDs
@@ -950,5 +989,8 @@
 | Phase 70 — Tag Manager | ✅ Done | Normalize, assign, filter (AND/OR/NOT), hierarchy, merge/delete, stats (51 tests) |
 | Phase 71 — Access Log | ✅ Done | Entry creation, filter, anomaly detection (4 types), summary, pagination, retention (33 tests) |
 | Phase 72 — Input Schema Validator | ✅ Done | string/number/integer/boolean/null/any/array/object, formats, coercion, nested paths (54 tests) |
-| **Total Tests** | **3155** | **98 test files** |
+| Phase 73 — Execution Tracer | ✅ Done | Span hierarchy, critical path, flamegraph, duration-by-kind, trace summary (34 tests) |
+| Phase 74 — Feature Flags | ✅ Done | Boolean/string/number/json flags, 12 operators, rollout bucketing, rules, stats (45 tests) |
+| Phase 75 — Change Feed | ✅ Done | Field-level diffs, session grouping, history replay, point-in-time lookup, changelog (34 tests) |
+| **Total Tests** | **3268** | **102 test files** |
 | MCP HTTP Endpoint | ⏳ Planned | Live MCP server for Claude/Cursor |
