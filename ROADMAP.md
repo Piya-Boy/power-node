@@ -664,6 +664,81 @@
 
 ---
 
+## ✅ Phase 57 — Workflow Versioning & Snapshot Manager
+
+- [x] **computeChecksum** — FNV-1a hash of canonical (sorted) payload
+- [x] **createSnapshot** — create snapshot with semver, trigger, changeCategory
+- [x] **buildSemver / parseSemver** — linear version ↔ semver (1→1.0.0, 11→2.0.0)
+- [x] **diffSnapshots / diffPayloads** — detect structural/config/settings/metadata/none changes
+- [x] **buildSnapshotIndex** — lightweight index without payload
+- [x] **findByTag / findByTrigger / getLatestSnapshot / sortByVersion** — query helpers
+- [x] **addTags / removeTags / setLabel** — immutable tag/label management
+- [x] **createRollbackSnapshot** — restore prior payload as new incremented snapshot
+- [x] **validateChecksum** — verify payload integrity
+- [x] **getRestoreChain** — trace parent chain from snapshot to root
+- [x] **computeSnapshotStats** — counts by trigger/changeCategory, contributors, dates (64 tests)
+
+---
+
+## ✅ Phase 58 — API Key Lifecycle Manager
+
+- [x] **buildKeyPrefix** — tier + env prefix (pn_live_, svc_test_, etc.)
+- [x] **hashApiKey / verifyApiKey** — deterministic hash, verification
+- [x] **maskApiKey** — show prefix + first chars + ****
+- [x] **validateApiKey** — name, scopes, expiry, rate limit, IP, admin warnings
+- [x] **createApiKey** — create with active status, dedup scopes
+- [x] **revokeApiKey** — immutable revocation with reason
+- [x] **recordKeyUsage** — increment usage count + lastUsedAt
+- [x] **rotateApiKey** — link old→new, mark old as rotated
+- [x] **isKeyValid / isKeyExpired / getDaysUntilExpiry** — status checks
+- [x] **hasScope** — scope check (admin grants all)
+- [x] **isIpAllowed** — exact IP and CIDR matching
+- [x] **buildUsageSummary / createAuditEntry / getAuditEntriesForKey** — observability
+- [x] **getKeysExpiringWithin / summarizeKeys** — expiry alerts, stats (66 tests)
+
+---
+
+## ✅ Phase 59 — Workflow Run Analytics & Alerting
+
+- [x] **computeRunMetrics** — success/failure rate, avg/p95/p99/min/max duration
+- [x] **filterRunsToWindow** — time-window filtering
+- [x] **getConsecutiveFailuresAtEnd** — sorted run tail analysis
+- [x] **createAlertRule / validateAlertRule** — rule creation and validation
+- [x] **evaluateAlertRule** — 6 conditions: failure_rate_above, consecutive_failures, slow_run, no_runs, error_spike, run_count_anomaly
+- [x] **evaluateAllRules** — batch evaluation with cooldown support
+- [x] **resolveAlert / getUnresolvedAlerts / getWorkflowAlerts** — alert management
+- [x] **summarizeAlerts** — counts by severity and condition
+- [x] **groupRunsByHour / rollingFailureRate** — time-series analysis (42 tests)
+
+---
+
+## ✅ Phase 60 — Node Connection Validator
+
+- [x] **areTypesCompatible** — any/string/number/boolean/object/array/binary/null
+- [x] **findPort / getOutputPorts / getInputPorts** — port discovery
+- [x] **validateConnection** — self-loop, direction, type mismatch, duplicate, multiple-port, trigger/terminal, max connections
+- [x] **validateGraph** — cycle detection, unreachable/disconnected nodes, missing required inputs
+- [x] **topologicalSort** — Kahn's algorithm (null on cycle)
+- [x] **getUpstreamNodes / getDownstreamNodes** — BFS ancestor/descendant traversal
+- [x] **wouldDisconnectGraph** — undirected connectivity check on node removal (33 tests)
+
+---
+
+## ✅ Phase 61 — Workflow Schedule Manager
+
+- [x] **parseCron / validateCron / formatCron** — 5-field cron parsing and validation
+- [x] **describeCron** — human-readable descriptions (common pattern shortcuts + generic)
+- [x] **getNextRunTime** — next UTC run after given date (supports *, */step, comma, range)
+- [x] **getNextNRunTimes** — sequential next N run times
+- [x] **createSchedule** — schedule with computed nextRunAt
+- [x] **recordScheduleRun** — update runCount, lastRunAt, nextRunAt; disable on maxRuns
+- [x] **pauseSchedule / resumeSchedule** — lifecycle management
+- [x] **isScheduleDue / getDueSchedules** — run-due detection
+- [x] **detectScheduleConflicts** — finds schedules firing within N minutes of each other
+- [x] **estimateRunsPerDay / summarizeSchedules** — statistics (49 tests)
+
+---
+
 ## 📊 Progress Summary
 
 | Phase | Status | Highlights |
@@ -709,5 +784,10 @@
 | Phase 54 — Workflow Cost Estimator | ✅ Done | Node cost models, free tier, budget management, trend analysis (60 tests) |
 | Phase 55 — Workflow Import/Export | ✅ Done | Export/import packages, sanitize, templates, format detection (68 tests) |
 | Phase 56 — Team Permission Matrix | ✅ Done | 6 roles, inheritance, restrictions, expiry, policy summary (71 tests) |
-| **Total Tests** | **2422** | **82 test files** |
+| Phase 57 — Snapshot Manager | ✅ Done | Create/diff/tag/restore snapshots, semver, checksums, stats (64 tests) |
+| Phase 58 — API Key Lifecycle | ✅ Done | Create/rotate/revoke keys, scope check, IP allowlist, audit (66 tests) |
+| Phase 59 — Run Analytics & Alerting | ✅ Done | Run metrics, 6 alert conditions, rolling failure rate (42 tests) |
+| Phase 60 — Connection Validator | ✅ Done | Port compatibility, cycles, topo sort, upstream/downstream (33 tests) |
+| Phase 61 — Schedule Manager | ✅ Done | Cron parse/validate/describe, next-run, lifecycle, conflict (49 tests) |
+| **Total Tests** | **2676** | **87 test files** |
 | MCP HTTP Endpoint | ⏳ Planned | Live MCP server for Claude/Cursor |
