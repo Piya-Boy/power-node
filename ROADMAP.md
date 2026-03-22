@@ -782,6 +782,86 @@
 
 ---
 
+## ✅ Phase 65 — Workflow Output Formatter
+
+- [x] **detectType** — identify null/boolean/number/string/date/array/object/binary
+- [x] **inferSchema** — key→type map from array of rows
+- [x] **toJson** — JSON with indent, maxDepth, maxArrayItems, maxStringLength truncation
+- [x] **toCsv / toTsv** — CSV/TSV with headers, custom delimiter, escape commas/quotes/newlines
+- [x] **toYaml** — simplified YAML (no anchors), arrays with dashes, quoted strings
+- [x] **toMarkdownTable** — header + separator + body rows, pipe escaping, truncation
+- [x] **toHtmlTable** — thead/tbody with HTML escaping (XSS-safe), empty table fallback
+- [x] **toXml** — recursive XML with root tag, XML escaping, self-closing null tags
+- [x] **toPlainText** — human-readable key:value and nested arrays
+- [x] **formatOutput** — universal router for all 8 formats, wraps non-array for tabular formats (51 tests)
+
+---
+
+## ✅ Phase 66 — Workflow Health Monitor
+
+- [x] **detectIssues** — 7 issue categories: performance, reliability, activity, security, configuration, cost; custom thresholds
+- [x] **computeHealthScore** — 0–100 score with grades A/B/C/D/F; per-category scores; status healthy/degraded/critical/unknown
+- [x] **compareHealthScores** — scoreDelta, trend (improving/stable/degrading, ±5 threshold), newIssues, resolvedIssues
+- [x] **computeFleetHealth** — fleet-wide healthy/degraded/critical counts, avgScore, top-5 issues across workflows
+- [x] **filterByStatus** — filter HealthScore array by status
+- [x] **sortByHealthScore** — sort asc (worst first) or desc (best first) (33 tests)
+
+---
+
+## ✅ Phase 67 — Retry Policy Engine
+
+- [x] **createRetryPolicy / noRetryPolicy / defaultExponentialPolicy** — policy factories with defaults
+- [x] **computeBaseDelay** — none/fixed/linear/exponential/fibonacci delay formulas
+- [x] **applyJitter** — none/full/equal/decorrelated jitter modes
+- [x] **computeDelay** — base delay + jitter + maxDelayMs cap
+- [x] **shouldRetryOnError** — condition matching (any_error, network_error, timeout, etc.)
+- [x] **decideRetry** — full retry decision with attemptsRemaining and delayMs
+- [x] **createRetryState / recordAttempt / markExhausted** — immutable state management
+- [x] **createRetryBudget / recordBudgetCall / isBudgetAvailable / getFailureRate** — rolling budget
+- [x] **validateRetryPolicy** — id/maxAttempts/delays/multiplier/retryOn/budgetPercent checks
+- [x] **computeRetryStats / summarizeRetries** — per-state and fleet-level retry analytics (48 tests)
+
+---
+
+## ✅ Phase 68 — Node Execution Context
+
+- [x] **createMeta / buildContext** — execution metadata and context factories with defaults
+- [x] **getInput / getInputsFromNode / hasInput / addInput** — input port access
+- [x] **getVariable / setVariable / mergeVariables** — dot-notation variable store
+- [x] **getSecret / getSecretValue / hasAllSecrets / addSecret / redactSecrets** — secret lifecycle
+- [x] **getPreviousOutput / setPreviousOutput** — upstream node output access
+- [x] **isTimedOut / getRemainingTimeMs** — per-execution timeout tracking
+- [x] **validateContext** — errors for missing IDs, warnings for missing secrets/bad timeout
+- [x] **summarizeContext / forkContext / mergeContexts** — safe serialization and context propagation (49 tests)
+
+---
+
+## ✅ Phase 69 — Workflow Metrics Aggregator
+
+- [x] **percentile / sortAsc** — nearest-rank percentile computation
+- [x] **truncateToGranularity / getBucketEnd** — minute/hour/day/week/month UTC bucketing
+- [x] **bucketExecutions** — group executions into sorted metric buckets with p50/p95/p99
+- [x] **aggregateExecutions** — full window aggregation (success rate, cost, retries, percentiles)
+- [x] **extractTrend** — trend direction (up/down/flat) and % change from bucketed series
+- [x] **filterToWindow / filterByWorkflow / filterByTag** — execution record filtering
+- [x] **compareMetricWindows** — delta computation between two aggregated windows
+- [x] **summarizeFleetMetrics** — fleet-wide totals, top costly/slow/failing workflows (41 tests)
+
+---
+
+## ✅ Phase 70 — Workflow Tag Manager
+
+- [x] **normalizeTagName / validateTagName** — lowercase, dash-normalize, length/char validation
+- [x] **createTag / computeWorkflowCount / refreshTagCounts** — tag lifecycle and count sync
+- [x] **addTagsToWorkflow / removeTagsFromWorkflow / setWorkflowTags / toggleTag** — assignment ops
+- [x] **findWorkflowsWithAllTags / AnyTag / WithoutTags / findUntaggedWorkflows** — query patterns
+- [x] **filterTags / groupByCategory / sortTags** — tag list filtering and organization
+- [x] **getTagParent / getChildTags / getParentNames** — hierarchical `parent:child` tag structure
+- [x] **renameTag / deleteTag / mergeTags** — bulk mutation operations
+- [x] **computeTagStats** — totalTags, usage, avgTagsPerWorkflow, mostUsed, unused, categoryBreakdown (51 tests)
+
+---
+
 ## 📊 Progress Summary
 
 | Phase | Status | Highlights |
@@ -835,5 +915,11 @@
 | Phase 62 — Event Sourcing | ✅ Done | Create/apply/replay events, snapshot, stream, projections, tombstone (28 tests) |
 | Phase 63 — i18n Utilities | ✅ Done | 10 locales, RTL, interpolation, pluralization, date/currency/time (59 tests) |
 | Phase 64 — Dependency Resolver | ✅ Done | Semver matching, resolution, graph, cycles, topo-sort, transitive (32 tests) |
-| **Total Tests** | **2795** | **90 test files** |
+| Phase 65 — Output Formatter | ✅ Done | detectType, JSON/CSV/TSV/YAML/Markdown/HTML/XML/Plain, truncation (51 tests) |
+| Phase 66 — Workflow Health Monitor | ✅ Done | detectIssues, health scores A–F, fleet health, compare trends (33 tests) |
+| Phase 67 — Retry Policy Engine | ✅ Done | 5 strategies, backoff+jitter, retry budget, state tracking, stats (48 tests) |
+| Phase 68 — Node Execution Context | ✅ Done | Inputs, variables (dot-path), secrets, previous outputs, timeout, fork/merge (49 tests) |
+| Phase 69 — Metrics Aggregator | ✅ Done | Percentiles, time buckets, aggregation, trend extraction, fleet summary (41 tests) |
+| Phase 70 — Tag Manager | ✅ Done | Normalize, assign, filter (AND/OR/NOT), hierarchy, merge/delete, stats (51 tests) |
+| **Total Tests** | **3068** | **96 test files** |
 | MCP HTTP Endpoint | ⏳ Planned | Live MCP server for Claude/Cursor |
