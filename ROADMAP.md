@@ -849,6 +849,31 @@
 
 ---
 
+## ✅ Phase 76 — Workflow Condition Evaluator
+
+- [x] **extractField** — dot-notation nested field extraction
+- [x] **evaluateSimple** — 20 operators: ==/!=/>/>=/</<=/contains/starts_with/ends_with/matches/in/is_null/is_empty/is_true/between
+- [x] **evaluateCondition** — compound AND/OR/NOT with recursive nesting
+- [x] **simple / and / or / not** — builder DSL for constructing conditions
+- [x] **evaluateSwitch** — first-match switch with all-results and errors
+- [x] **filterData / partitionData** — apply condition to data arrays
+- [x] **describeCondition** — human-readable condition description (54 tests)
+
+---
+
+## ✅ Phase 77 — Workflow Pagination Helper
+
+- [x] **encodeCursor / decodeCursor** — opaque base64 cursor encoding
+- [x] **sortItems** — multi-field sort with asc/desc, null-last, dot-notation fields
+- [x] **paginateOffset** — offset/page pagination with from/to, totalPages, hasNext/hasPrev
+- [x] **paginateCursor** — cursor-based pagination with nextCursor/prevCursor
+- [x] **clampPage / totalPages** — utility computations
+- [x] **generatePageNumbers** — page number list with -1 ellipsis markers
+- [x] **getNamedPage** — first/last/next/prev navigation
+- [x] **buildPageQuery** — URL query string builder for pagination params (40 tests)
+
+---
+
 ## ✅ Phase 73 — Workflow Execution Tracer
 
 - [x] **createSpan / endSpan / addSpanEvent / setSpanAttribute** — span lifecycle
@@ -992,5 +1017,7 @@
 | Phase 73 — Execution Tracer | ✅ Done | Span hierarchy, critical path, flamegraph, duration-by-kind, trace summary (34 tests) |
 | Phase 74 — Feature Flags | ✅ Done | Boolean/string/number/json flags, 12 operators, rollout bucketing, rules, stats (45 tests) |
 | Phase 75 — Change Feed | ✅ Done | Field-level diffs, session grouping, history replay, point-in-time lookup, changelog (34 tests) |
-| **Total Tests** | **3268** | **102 test files** |
+| Phase 76 — Condition Evaluator | ✅ Done | 20 operators, AND/OR/NOT compound, switch eval, filter/partition, describe (54 tests) |
+| Phase 77 — Pagination Helper | ✅ Done | Offset/cursor pagination, multi-sort, page numbers, named nav, URL query builder (40 tests) |
+| **Total Tests** | **3362** | **106 test files** |
 | MCP HTTP Endpoint | ⏳ Planned | Live MCP server for Claude/Cursor |
