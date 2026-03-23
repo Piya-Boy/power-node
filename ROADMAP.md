@@ -1028,5 +1028,12 @@
 | Phase 84 — Output Mapper | ✅ Done | Field mapping, routing rules, fan-out/fan-in, normalization, output diffing (40 tests) |
 | Phase 85 — Secrets Rotation Manager | ✅ Done | Per-type policies, versioning, lifecycle, expiry checks, bulk queries, rotation history (51 tests) |
 | Phase 86 — Cache Manager | ✅ Done | LRU/LFU/FIFO/TTL eviction, TTL expiry, tag/scope/prefix invalidation, bulk ops, stats (34 tests) |
-| **Total Tests** | **3845** | **115 test files** |
+| Phase 87 — Notification Router | ✅ Done | Rule matching, channel eligibility, quiet hours, rate limiting, recipient prefs, stats (43 tests) |
+| Phase 88 — Telemetry Collector | ✅ Done | Buffer management, counter/gauge/histogram, log sampling, metric aggregation, p50/p95/p99 (39 tests) |
+| Phase 89 — Retry Policy Engine | ✅ Done | Backoff strategies (fixed/linear/exponential/jitter), retry conditions, HTTP status filtering, state machine, stats (47 tests) |
+| Phase 90 — Context Propagation | ✅ Done | Trace/span IDs, scoped entries, TTL expiry, child context, header serialization, baggage (31 tests) |
+| Phase 91 — Snapshot Manager | ✅ Done | Workflow state versioning, checksum, prune/archive/delete, diff comparison, tag/label, store stats (27 tests) |
+| Phase 92 — Event Sourcing | ✅ Done | Domain events, append-only store, version conflict detection, state rebuilding, snapshot optimization (23 tests) |
+| Phase 93 — DI Container | ✅ Done | Service registration (transient/singleton/scoped), factory injection, aliases, tag resolution, scope isolation (20 tests) |
+| **Total Tests** | **4075** | **122 test files** |
 | MCP HTTP Endpoint | ⏳ Planned | Live MCP server for Claude/Cursor |
