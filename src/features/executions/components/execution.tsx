@@ -5,6 +5,7 @@ import {
   CheckCircle2Icon,
   ClockIcon,
   Loader2Icon,
+  RotateCcwIcon,
   SparklesIcon,
   XCircleIcon,
 } from "lucide-react";
@@ -33,6 +34,7 @@ import {
 import { useCredentialsByType } from "@/features/credentials/hooks/use-credentials";
 import {
   useAiAutoFixExecution,
+  useRetryExecution,
   useSuspenseExecution,
 } from "@/features/executions/hooks/use-executions";
 import {
@@ -92,6 +94,7 @@ export const ExecutionView = ({ executionId }: { executionId: string }) => {
     CredentialType.OPENAI,
   );
   const autoFixExecution = useAiAutoFixExecution();
+  const retryExecution = useRetryExecution();
   const updateWorkflow = useUpdateWorkflow();
 
   useEffect(() => {
@@ -246,11 +249,29 @@ export const ExecutionView = ({ executionId }: { executionId: string }) => {
             ) : null}
 
             <div className="rounded-md border border-red-200 bg-white/70 p-3">
-              <div className="mb-3 flex items-center gap-2">
-                <SparklesIcon className="size-4 text-red-700" />
-                <p className="text-sm font-medium text-red-950">
-                  Auto-fix with AI
-                </p>
+              <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  <SparklesIcon className="size-4 text-red-700" />
+                  <p className="text-sm font-medium text-red-950">
+                    Retry or auto-fix
+                  </p>
+                </div>
+
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() =>
+                    void retryExecution.mutateAsync({ id: execution.id })
+                  }
+                  disabled={retryExecution.isPending}
+                >
+                  {retryExecution.isPending ? (
+                    <Loader2Icon className="size-4 animate-spin" />
+                  ) : (
+                    <RotateCcwIcon className="size-4" />
+                  )}
+                  Retry execution
+                </Button>
               </div>
 
               <div className="flex flex-col gap-2 sm:flex-row">

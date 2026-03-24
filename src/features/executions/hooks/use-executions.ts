@@ -1,4 +1,8 @@
-import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
+import {
+  useMutation,
+  useQueryClient,
+  useSuspenseQuery,
+} from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useTRPC } from "@/trpc/client";
 import { useExecutionsParams } from "./use-executions-params";
@@ -28,6 +32,26 @@ export const useAiAutoFixExecution = () => {
     trpc.executions.autoFix.mutationOptions({
       onError: (error) => {
         toast.error(`Failed to analyze execution with AI: ${error.message}`);
+      },
+    }),
+  );
+};
+
+export const useRetryExecution = () => {
+  const trpc = useTRPC();
+  const queryClient = useQueryClient();
+
+  return useMutation(
+    trpc.executions.retry.mutationOptions({
+      onSuccess: (data) => {
+        toast.success(`Retry queued for workflow "${data.workflow.name}"`);
+        queryClient.invalidateQueries(trpc.executions.getMany.queryOptions({}));
+        queryClient.invalidateQueries(
+          trpc.executions.getOne.queryOptions({ id: data.id }),
+        );
+      },
+      onError: (error) => {
+        toast.error(`Failed to retry execution: ${error.message}`);
       },
     }),
   );

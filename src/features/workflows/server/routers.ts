@@ -19,6 +19,7 @@ import {
   generateWebhookSecret,
   getWebhookUrl,
 } from "@/features/workflows/lib/webhook-url";
+import { buildWorkflowInsightsSnapshot } from "@/features/workflows/lib/workflow-insights";
 import { NodeType } from "@/generated/prisma";
 import { sendWorkflowExecution } from "@/inngest/utils";
 import prisma from "@/lib/db";
@@ -43,6 +44,7 @@ const workflowEdgeInputSchema = z.object({
 });
 
 const aiModelIdSchema = z.enum(["gpt-4o", "gpt-4o-mini"]);
+const workflowLogLevelSchema = z.enum(["info", "warn", "error"]);
 
 export const workflowsRouter = createTRPCRouter({
   execute: protectedProcedure
@@ -275,6 +277,12 @@ export const workflowsRouter = createTRPCRouter({
       return {
         id: workflow.id,
         name: workflow.name,
+        description: workflow.description,
+        tags: workflow.tags,
+        isActive: workflow.isActive,
+        logStreamingEnabled: workflow.logStreamingEnabled,
+        logStreamingUrl: workflow.logStreamingUrl,
+        logStreamingLevel: workflow.logStreamingLevel,
         nodes,
         edges,
       };
@@ -287,13 +295,75 @@ export const workflowsRouter = createTRPCRouter({
         description: z.string().optional(),
         tags: z.array(z.string()).optional(),
         isActive: z.boolean().optional(),
+        logStreamingEnabled: z.boolean().optional(),
+        logStreamingUrl: z.union([z.string().url(), z.literal("")]).optional(),
+        logStreamingLevel: workflowLogLevelSchema.optional(),
       }),
     )
     .mutation(({ ctx, input }) => {
-      const { id, ...data } = input;
+      const { id, logStreamingUrl, ...data } = input;
+
+      if (data.logStreamingEnabled && !logStreamingUrl) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Log streaming URL is required when streaming is enabled",
+        });
+      }
+
       return prisma.workflow.update({
         where: { id, userId: ctx.auth.user.id },
-        data,
+        data: {
+          ...data,
+          ...(logStreamingUrl !== undefined
+            ? {
+                logStreamingUrl: logStreamingUrl || null,
+              }
+            : {}),
+        },
+      });
+    }),
+  getInsights: protectedProcedure
+    .input(
+      z.object({
+        windowDays: z.number().min(7).max(90).default(30),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const now = new Date();
+      const lookbackStart = new Date(
+        now.getTime() - input.windowDays * 2 * 24 * 60 * 60 * 1000,
+      );
+
+      const executions = await prisma.execution.findMany({
+        where: {
+          workflow: {
+            userId: ctx.auth.user.id,
+          },
+          startedAt: {
+            gte: lookbackStart,
+          },
+        },
+        include: {
+          workflow: {
+            select: {
+              id: true,
+              name: true,
+              nodes: {
+                select: {
+                  type: true,
+                },
+              },
+            },
+          },
+        },
+        orderBy: {
+          startedAt: "asc",
+        },
+      });
+
+      return buildWorkflowInsightsSnapshot(executions, {
+        now,
+        windowDays: input.windowDays,
       });
     }),
   generateWebhookUrl: protectedProcedure

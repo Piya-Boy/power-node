@@ -19,6 +19,9 @@
 - **AI Workflow Assistant** — AI dialog รองรับ 3 โหมดคือ **Generate**, **Suggestions**, และ **Workflow Chat**; ใช้ OpenAI credentials ที่เก็บในระบบ; apply workflow changes กลับเข้า editor state โดยตรงแทนการเขียนทับผ่าน React Flow store
 - **AI Error Auto-fix** — หน้า execution detail ของงานที่ fail มีปุ่ม **Auto-fix with AI** แล้ว; วิเคราะห์ error + stack trace + workflow graph และเสนอ fix พร้อม apply กลับเข้า workflow ได้ทันที
 - **Trigger Runtime** — เพิ่ม **EMAIL_TRIGGER** และ **ERROR_TRIGGER** ครบทั้ง node catalog, validator, docs, AI prompt generation, executor registry และ Inngest runtime; email trigger poll IMAP inbox แบบ dedupe ด้วย stable event id, ส่วน error trigger dispatch workflow อื่นอัตโนมัติเมื่อ execution fail
+- **Workflow Settings & Log Streaming** — หน้า editor มีปุ่ม **Settings** แล้ว; แก้ description / tags / active state ได้จาก sheet เดียวกัน และตั้ง **external log streaming endpoint** ต่อ workflow พร้อมขั้นต่ำระดับ log (`info`, `warn`, `error`) เพื่อส่ง lifecycle events ออกไปยัง monitoring ภายนอก
+- **Execution Recovery** — หน้า execution detail ของงานที่ fail มีปุ่ม **Retry execution** แล้ว; queue งานใหม่กลับเข้า Inngest ได้จากหน้าเดิมโดยไม่ต้องกลับไป editor
+- **Insights Dashboard** — หน้า `/workflows` แสดง analytics dashboard แล้ว: total executions, success rate trend, estimated time saved / monthly savings, execution trend chart, success-rate trend, และ bottleneck recommendations ต่อ workflow
 - **React Flow** — ห่อ `ReactFlowProvider` ให้ `useReactFlow()` / `useNodeDrop()` ทำงานถูก context (แก้ error zustand provider)
 - **Inngest Realtime** — subscription token แบบ opt-in ด้วย `NEXT_PUBLIC_INNGEST_REALTIME_ENABLED=true` (ค่าเริ่มต้นปิดเพื่อไม่ให้ dev โดน 401 เมื่อยังไม่ตั้ง signing key); ดู `.env.example`
 - **Build / deps** — ต้อง `npm install` ให้ครบเมื่อมี dependency ใหม่ (เช่น `@better-auth/infra`)
@@ -156,10 +159,10 @@
 - [x] **Webhook Trigger Endpoint** — `POST /api/webhooks/trigger/:secret`
 - [x] **Workflow Settings** — แก้ไข description, tags, isActive
 - [x] **Workflow Tagging** — tag workflow เพื่อจัดหมวดหมู่
-- [ ] **Error Retry UI** — retry execution ที่ failed ได้จากหน้า execution detail
-- [ ] **Variable System** — global variables ที่ใช้ได้ข้าม workflow
-- [ ] **Log Streaming** — ส่ง execution logs ไปยัง external monitoring
-- [ ] **Insights Dashboard** — analytics เช่น success rate, time saved, execution trends
+- [x] **Error Retry UI** — retry execution ที่ failed ได้จากหน้า execution detail
+- [x] **Variable System** — global variables ที่ใช้ได้ข้าม workflow
+- [x] **Log Streaming** — ส่ง execution logs ไปยัง external monitoring
+- [x] **Insights Dashboard** — analytics เช่น success rate, time saved, execution trends
 
 ---
 
