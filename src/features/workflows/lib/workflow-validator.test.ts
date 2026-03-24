@@ -1,6 +1,10 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import { NodeType } from "@/generated/prisma";
-import { validateWorkflow, validateNodeData, getNodeValidationRules } from "./workflow-validator";
+import {
+  getNodeValidationRules,
+  validateNodeData,
+  validateWorkflow,
+} from "./workflow-validator";
 
 describe("Workflow Validator", () => {
   describe("validateWorkflow", () => {
@@ -22,7 +26,9 @@ describe("Workflow Validator", () => {
         [],
       );
       expect(result.valid).toBe(false);
-      expect(result.errors.some((e) => e.type === "missing_trigger")).toBe(true);
+      expect(result.errors.some((e) => e.type === "missing_trigger")).toBe(
+        true,
+      );
     });
 
     it("should skip INITIAL and STICKY_NOTE nodes for trigger check", () => {
@@ -65,7 +71,9 @@ describe("Workflow Validator", () => {
           { fromNodeId: "1", toNodeId: "2" }, // duplicate
         ],
       );
-      expect(result.errors.some((e) => e.type === "duplicate_connection")).toBe(true);
+      expect(result.errors.some((e) => e.type === "duplicate_connection")).toBe(
+        true,
+      );
     });
 
     it("should warn about disconnected nodes", () => {
@@ -77,7 +85,9 @@ describe("Workflow Validator", () => {
         ],
         [{ fromNodeId: "1", toNodeId: "2" }],
       );
-      expect(result.warnings.some((w) => w.type === "unused_output")).toBe(true);
+      expect(result.warnings.some((w) => w.type === "unused_output")).toBe(
+        true,
+      );
     });
 
     it("should warn about credential requirements", () => {
@@ -103,12 +113,16 @@ describe("Workflow Validator", () => {
     });
 
     it("should warn about complex workflows", () => {
-      const nodes = [{ id: "trigger", type: NodeType.MANUAL_TRIGGER }];
+      const nodes: { id: string; type: NodeType }[] = [
+        { id: "trigger", type: NodeType.MANUAL_TRIGGER },
+      ];
       for (let i = 0; i < 55; i++) {
         nodes.push({ id: `n${i}`, type: NodeType.CODE });
       }
       const result = validateWorkflow(nodes, []);
-      expect(result.warnings.some((w) => w.type === "complex_workflow")).toBe(true);
+      expect(result.warnings.some((w) => w.type === "complex_workflow")).toBe(
+        true,
+      );
     });
 
     it("should pass for empty workflow", () => {
@@ -124,6 +138,8 @@ describe("Workflow Validator", () => {
         NodeType.CHAT_TRIGGER,
         NodeType.GOOGLE_FORM_TRIGGER,
         NodeType.STRIPE_TRIGGER,
+        NodeType.EMAIL_TRIGGER,
+        NodeType.ERROR_TRIGGER,
       ];
 
       for (const tt of triggerTypes) {

@@ -63,6 +63,8 @@ Key Node Type Descriptions:
 - WEBHOOK_TRIGGER: Receives HTTP webhook requests
 - SCHEDULE_TRIGGER: Runs on a cron schedule
 - CHAT_TRIGGER: Triggered by a chat message
+- EMAIL_TRIGGER: Polls an IMAP inbox for matching email
+- ERROR_TRIGGER: Runs when another workflow fails
 - HTTP_REQUEST: Makes HTTP requests (data: { variableName, endpoint, method, body })
 - OPENAI: AI text generation (data: { variableName, systemPrompt, userPrompt })
 - ANTHROPIC: AI text generation (data: { variableName, systemPrompt, userPrompt })
@@ -86,7 +88,7 @@ Key Node Type Descriptions:
 - STICKY_NOTE: Add comments (data: { text, color })
 
 Rules:
-1. Every workflow must start with a trigger node (MANUAL_TRIGGER, WEBHOOK_TRIGGER, SCHEDULE_TRIGGER, or CHAT_TRIGGER)
+1. Every workflow must start with a trigger node (MANUAL_TRIGGER, WEBHOOK_TRIGGER, SCHEDULE_TRIGGER, CHAT_TRIGGER, EMAIL_TRIGGER, or ERROR_TRIGGER)
 2. Assign unique IDs using format "node_1", "node_2", etc.
 3. Position nodes left-to-right with ~250px horizontal spacing and ~100px vertical spacing
 4. Start positions at x:100, y:200

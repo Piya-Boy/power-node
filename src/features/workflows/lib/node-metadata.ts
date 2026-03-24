@@ -4,7 +4,14 @@ export interface NodeMetadata {
   type: NodeType;
   label: string;
   description: string;
-  category: "trigger" | "execution" | "logic" | "data" | "utility" | "integration" | "ai";
+  category:
+    | "trigger"
+    | "execution"
+    | "logic"
+    | "data"
+    | "utility"
+    | "integration"
+    | "ai";
   color: string;
   inputs: number;
   outputs: number;
@@ -83,6 +90,27 @@ export const nodeMetadataMap: Record<string, NodeMetadata> = {
     inputs: 0,
     outputs: 1,
     icon: "CreditCard",
+  },
+  [NodeType.EMAIL_TRIGGER]: {
+    type: NodeType.EMAIL_TRIGGER,
+    label: "Email Trigger",
+    description: "Trigger workflow when new IMAP email arrives",
+    category: "trigger",
+    color: "#22c55e",
+    inputs: 0,
+    outputs: 1,
+    icon: "Mail",
+    credentialType: "IMAP",
+  },
+  [NodeType.ERROR_TRIGGER]: {
+    type: NodeType.ERROR_TRIGGER,
+    label: "Error Trigger",
+    description: "Trigger workflow when another workflow fails",
+    category: "trigger",
+    color: "#22c55e",
+    inputs: 0,
+    outputs: 1,
+    icon: "Bug",
   },
   [NodeType.HTTP_REQUEST]: {
     type: NodeType.HTTP_REQUEST,
@@ -534,7 +562,9 @@ export function getNodeMetadata(type: string): NodeMetadata | undefined {
   return nodeMetadataMap[type];
 }
 
-export function getNodesByCategory(category: NodeMetadata["category"]): NodeMetadata[] {
+export function getNodesByCategory(
+  category: NodeMetadata["category"],
+): NodeMetadata[] {
   return Object.values(nodeMetadataMap).filter((m) => m.category === category);
 }
 

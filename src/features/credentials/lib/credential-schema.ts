@@ -188,6 +188,48 @@ export const credentialSchemas: Record<string, CredentialSchema> = {
       },
     ],
   },
+  [CredentialType.IMAP]: {
+    type: CredentialType.IMAP,
+    label: "IMAP Email",
+    description: "IMAP server credentials for polling inboxes",
+    isJson: true,
+    fields: [
+      {
+        key: "host",
+        label: "IMAP Host",
+        type: "text",
+        required: true,
+        placeholder: "imap.gmail.com",
+      },
+      {
+        key: "port",
+        label: "Port",
+        type: "number",
+        required: true,
+        placeholder: "993",
+      },
+      {
+        key: "user",
+        label: "Username",
+        type: "email",
+        required: true,
+      },
+      {
+        key: "pass",
+        label: "Password",
+        type: "password",
+        required: true,
+      },
+      {
+        key: "secure",
+        label: "TLS / SSL",
+        type: "text",
+        required: false,
+        placeholder: "true",
+        description: "Optional boolean. Defaults to true when port is 993.",
+      },
+    ],
+  },
   [CredentialType.POSTGRES]: {
     type: CredentialType.POSTGRES,
     label: "PostgreSQL",
@@ -294,7 +336,9 @@ export const credentialSchemas: Record<string, CredentialSchema> = {
   },
 };
 
-export function getCredentialSchema(type: string): CredentialSchema | undefined {
+export function getCredentialSchema(
+  type: string,
+): CredentialSchema | undefined {
   return credentialSchemas[type];
 }
 

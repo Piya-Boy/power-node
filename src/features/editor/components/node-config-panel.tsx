@@ -19,6 +19,8 @@ const nodeTypeLabels: Record<string, string> = {
   [NodeType.MANUAL_TRIGGER]: "Manual Trigger",
   [NodeType.GOOGLE_FORM_TRIGGER]: "Google Form Trigger",
   [NodeType.STRIPE_TRIGGER]: "Stripe Trigger",
+  [NodeType.EMAIL_TRIGGER]: "Email Trigger",
+  [NodeType.ERROR_TRIGGER]: "Error Trigger",
   [NodeType.HTTP_REQUEST]: "HTTP Request",
   [NodeType.OPENAI]: "OpenAI",
   [NodeType.ANTHROPIC]: "Anthropic",

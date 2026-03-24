@@ -1,9 +1,9 @@
-import { describe, it, expect } from "vitest";
-import { NodeType } from "@/generated/prisma";
+import { describe, expect, it } from "vitest";
 import {
   allNodeCatalogOptions,
   filterNodeCatalogOptions,
 } from "@/features/editor/lib/node-catalog";
+import { NodeType } from "@/generated/prisma";
 
 describe("Node catalog filtering", () => {
   it("should return all nodes when search is empty", () => {
@@ -18,7 +18,10 @@ describe("Node catalog filtering", () => {
   });
 
   it("should filter by description", () => {
-    const result = filterNodeCatalogOptions("HTTP request", allNodeCatalogOptions);
+    const result = filterNodeCatalogOptions(
+      "HTTP request",
+      allNodeCatalogOptions,
+    );
     expect(result).toEqual(
       expect.arrayContaining([
         expect.objectContaining({ type: NodeType.HTTP_REQUEST }),
@@ -58,7 +61,9 @@ describe("Node catalog filtering", () => {
   });
 
   it("should categorize nodes correctly", () => {
-    const triggers = allNodeCatalogOptions.filter((n) => n.category === "trigger");
+    const triggers = allNodeCatalogOptions.filter(
+      (n) => n.category === "trigger",
+    );
     const executions = allNodeCatalogOptions.filter(
       (n) => n.category === "execution",
     );
@@ -72,7 +77,7 @@ describe("Node catalog filtering", () => {
       (n) => n.category === "utility",
     );
 
-    expect(triggers.length).toBe(6);
+    expect(triggers.length).toBe(8);
     expect(executions.length).toBe(6);
     expect(integrations.length).toBe(11);
     expect(ai.length).toBe(7);
@@ -82,7 +87,10 @@ describe("Node catalog filtering", () => {
   });
 
   it("should find Code node by 'javascript' in description", () => {
-    const result = filterNodeCatalogOptions("javascript", allNodeCatalogOptions);
+    const result = filterNodeCatalogOptions(
+      "javascript",
+      allNodeCatalogOptions,
+    );
     expect(result).toEqual(
       expect.arrayContaining([
         expect.objectContaining({ type: NodeType.CODE }),
@@ -117,6 +125,7 @@ describe("Node catalog filtering", () => {
     const result = filterNodeCatalogOptions("email", allNodeCatalogOptions);
     expect(result.length).toBeGreaterThanOrEqual(2);
     const types = result.map((n) => n.type);
+    expect(types).toContain(NodeType.EMAIL_TRIGGER);
     expect(types).toContain(NodeType.EMAIL_SMTP);
     expect(types).toContain(NodeType.GMAIL);
   });

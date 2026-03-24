@@ -1,58 +1,54 @@
-import { InitialNode } from "@/components/initial-node";
-import { NodeType } from "@/generated/prisma";
 import type { NodeTypes } from "@xyflow/react";
-
-import { HttpRequestNode } from "@/features/executions/components/http-request/node";
-import { ManualTriggerNode } from "@/features/triggers/components/manual-trigger/node";
-import { GoogleFormTrigger } from "@/features/triggers/components/google-form-trigger/node";
-import { StripeTriggerNode } from "@/features/triggers/components/stripe-trigger/node";
-import { GeminiNode } from "@/features/executions/components/gemini/node";
-import { OpenAiNode } from "@/features/executions/components/openai/node";
-import { AnthropicNode } from "@/features/executions/components/anthropic/node";
-import { DiscordNode } from "@/features/executions/components/discord/node";
-import { SlackNode } from "@/features/executions/components/slack/node";
+import { InitialNode } from "@/components/initial-node";
 import { StickyNoteNode } from "@/features/editor/components/sticky-note-node";
-
-// Phase 2: Triggers
-import { WebhookTriggerNode } from "@/features/triggers/components/webhook-trigger/node";
-import { ScheduleTriggerNode } from "@/features/triggers/components/schedule-trigger/node";
-
-// Phase 2: Logic & Flow Control
-import { IfConditionNode } from "@/features/executions/components/if-condition/node";
-import { SwitchNode } from "@/features/executions/components/switch/node";
-import { FilterNode } from "@/features/executions/components/filter/node";
-import { LoopNode } from "@/features/executions/components/loop/node";
-import { MergeNode } from "@/features/executions/components/merge/node";
-import { SplitNode } from "@/features/executions/components/split/node";
-import { WaitDelayNode } from "@/features/executions/components/wait-delay/node";
-
-// Phase 2: Data Transformation
-import { CodeNode } from "@/features/executions/components/code/node";
-import { TransformNode } from "@/features/executions/components/transform/node";
-import { SortNode } from "@/features/executions/components/sort/node";
-
-// Phase 3: Integrations
-import { TelegramNode } from "@/features/executions/components/telegram/node";
-import { EmailSmtpNode } from "@/features/executions/components/email-smtp/node";
-import { NotionNode } from "@/features/executions/components/notion/node";
-import { GoogleSheetsNode } from "@/features/executions/components/google-sheets/node";
-import { GoogleCalendarNode } from "@/features/executions/components/google-calendar/node";
-import { GoogleDriveNode } from "@/features/executions/components/google-drive/node";
-import { GmailNode } from "@/features/executions/components/gmail/node";
-import { GitHubNode } from "@/features/executions/components/github/node";
-import { GraphQLNode } from "@/features/executions/components/graphql/node";
-import { PostgresqlNode } from "@/features/executions/components/postgresql-query/node";
-import { MysqlNode } from "@/features/executions/components/mysql-query/node";
-
 // Phase 4: AI & LLM
 import { AiAgentNode } from "@/features/executions/components/ai-agent/node";
-import { OllamaNode } from "@/features/executions/components/ollama/node";
-import { TextClassifierNode } from "@/features/executions/components/text-classifier/node";
-import { SentimentAnalysisNode } from "@/features/executions/components/sentiment-analysis/node";
-import { InformationExtractorNode } from "@/features/executions/components/information-extractor/node";
 import { AiTransformNode } from "@/features/executions/components/ai-transform/node";
+import { AnthropicNode } from "@/features/executions/components/anthropic/node";
+// Phase 2: Data Transformation
+import { CodeNode } from "@/features/executions/components/code/node";
+import { DiscordNode } from "@/features/executions/components/discord/node";
+import { EmailSmtpNode } from "@/features/executions/components/email-smtp/node";
+import { FilterNode } from "@/features/executions/components/filter/node";
+import { GeminiNode } from "@/features/executions/components/gemini/node";
+import { GitHubNode } from "@/features/executions/components/github/node";
+import { GmailNode } from "@/features/executions/components/gmail/node";
+import { GoogleCalendarNode } from "@/features/executions/components/google-calendar/node";
+import { GoogleDriveNode } from "@/features/executions/components/google-drive/node";
+import { GoogleSheetsNode } from "@/features/executions/components/google-sheets/node";
+import { GraphQLNode } from "@/features/executions/components/graphql/node";
+import { HttpRequestNode } from "@/features/executions/components/http-request/node";
+// Phase 2: Logic & Flow Control
+import { IfConditionNode } from "@/features/executions/components/if-condition/node";
+import { InformationExtractorNode } from "@/features/executions/components/information-extractor/node";
+import { LoopNode } from "@/features/executions/components/loop/node";
+import { MergeNode } from "@/features/executions/components/merge/node";
+import { MysqlNode } from "@/features/executions/components/mysql-query/node";
+import { NotionNode } from "@/features/executions/components/notion/node";
+import { OllamaNode } from "@/features/executions/components/ollama/node";
+import { OpenAiNode } from "@/features/executions/components/openai/node";
+import { PostgresqlNode } from "@/features/executions/components/postgresql-query/node";
+import { SentimentAnalysisNode } from "@/features/executions/components/sentiment-analysis/node";
+import { SlackNode } from "@/features/executions/components/slack/node";
+import { SortNode } from "@/features/executions/components/sort/node";
+import { SplitNode } from "@/features/executions/components/split/node";
 import { SummarizationNode } from "@/features/executions/components/summarization/node";
+import { SwitchNode } from "@/features/executions/components/switch/node";
+// Phase 3: Integrations
+import { TelegramNode } from "@/features/executions/components/telegram/node";
+import { TextClassifierNode } from "@/features/executions/components/text-classifier/node";
+import { TransformNode } from "@/features/executions/components/transform/node";
+import { WaitDelayNode } from "@/features/executions/components/wait-delay/node";
 import { ChatTriggerNode } from "@/features/triggers/components/chat-trigger/node";
+import { EmailTriggerNode } from "@/features/triggers/components/email-trigger/node";
+import { ErrorTriggerNode } from "@/features/triggers/components/error-trigger/node";
+import { GoogleFormTrigger } from "@/features/triggers/components/google-form-trigger/node";
+import { ManualTriggerNode } from "@/features/triggers/components/manual-trigger/node";
+import { ScheduleTriggerNode } from "@/features/triggers/components/schedule-trigger/node";
+import { StripeTriggerNode } from "@/features/triggers/components/stripe-trigger/node";
+// Phase 2: Triggers
+import { WebhookTriggerNode } from "@/features/triggers/components/webhook-trigger/node";
+import { NodeType } from "@/generated/prisma";
 
 export const nodeComponents = {
   [NodeType.INITIAL]: InitialNode,
@@ -60,6 +56,8 @@ export const nodeComponents = {
   [NodeType.MANUAL_TRIGGER]: ManualTriggerNode,
   [NodeType.GOOGLE_FORM_TRIGGER]: GoogleFormTrigger,
   [NodeType.STRIPE_TRIGGER]: StripeTriggerNode,
+  [NodeType.EMAIL_TRIGGER]: EmailTriggerNode,
+  [NodeType.ERROR_TRIGGER]: ErrorTriggerNode,
   [NodeType.GEMINI]: GeminiNode,
   [NodeType.OPENAI]: OpenAiNode,
   [NodeType.ANTHROPIC]: AnthropicNode,
