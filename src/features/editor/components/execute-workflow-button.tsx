@@ -1,22 +1,21 @@
-import { Button } from "@/components/ui/button";
-import { useExecuteWorkflow } from "@/features/workflows/hooks/use-workflows";
 import { FlaskConicalIcon } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export const ExecuteWorkflowButton = ({
-  workflowId,
+  debugStartNodeLabel,
+  isPending,
+  onExecute,
 }: {
-  workflowId: string;
+  debugStartNodeLabel?: string | null;
+  isPending?: boolean;
+  onExecute: () => void;
 }) => {
-  const executeWorkflow = useExecuteWorkflow();
-
-  const handleExecute = () => {
-    executeWorkflow.mutate({ id: workflowId });
-  };
-
   return (
-    <Button size="lg" onClick={handleExecute} disabled={executeWorkflow.isPending}>
+    <Button size="lg" onClick={onExecute} disabled={isPending}>
       <FlaskConicalIcon className="size-4" />
-      Execute workflow
+      {debugStartNodeLabel
+        ? `Debug from ${debugStartNodeLabel}`
+        : "Execute workflow"}
     </Button>
   );
 };

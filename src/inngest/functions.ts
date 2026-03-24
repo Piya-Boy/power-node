@@ -1,24 +1,33 @@
 import { NonRetriableError } from "inngest";
-import { inngest } from "./client";
-import prisma from "@/lib/db";
-import { topologicalSort } from "./utils";
-import { ExecutionStatus, NodeType } from "@/generated/prisma";
 import { getExecutor } from "@/features/executions/lib/executor-registry";
-import { httpRequestChannel } from "./channels/http-request";
-import { manualTriggerChannel } from "./channels/manual-trigger";
-import { googleFormTriggerChannel } from "./channels/google-form-trigger";
-import { stripeTriggerChannel } from "./channels/stripe-trigger";
-import { geminiChannel } from "./channels/gemini";
-import { openAiChannel } from "./channels/openai";
+import {
+  applyPinnedDataPatch,
+  buildDebugExecutionPlan,
+  getPinnedDataPatch,
+} from "@/features/workflows/lib/debug-execution";
+import {
+  ExecutionStatus,
+  type NodeType,
+  type Prisma,
+} from "@/generated/prisma";
+import prisma from "@/lib/db";
 import { anthropicChannel } from "./channels/anthropic";
 import { discordChannel } from "./channels/discord";
+import { geminiChannel } from "./channels/gemini";
+import { googleFormTriggerChannel } from "./channels/google-form-trigger";
+import { httpRequestChannel } from "./channels/http-request";
+import { manualTriggerChannel } from "./channels/manual-trigger";
+import { openAiChannel } from "./channels/openai";
 import { slackChannel } from "./channels/slack";
+import { stripeTriggerChannel } from "./channels/stripe-trigger";
+import { inngest } from "./client";
+import { topologicalSort } from "./utils";
 
 export const executeWorkflow = inngest.createFunction(
-  { 
+  {
     id: "execute-workflow",
     retries: process.env.NODE_ENV === "production" ? 3 : 0,
-    onFailure: async ({ event, step }) => {
+    onFailure: async ({ event }) => {
       return prisma.execution.update({
         where: { inngestEventId: event.data.event.id },
         data: {
@@ -29,7 +38,7 @@ export const executeWorkflow = inngest.createFunction(
       });
     },
   },
-  { 
+  {
     event: "workflows/execute.workflow",
     channels: [
       httpRequestChannel(),
@@ -84,10 +93,24 @@ export const executeWorkflow = inngest.createFunction(
     });
 
     // Initialize context with any initial data from the trigger
-    let context = event.data.initialData || {};
+    const executionPlan = buildDebugExecutionPlan(sortedNodes, {
+      debugStartNodeId:
+        typeof event.data.debugStartNodeId === "string"
+          ? event.data.debugStartNodeId
+          : null,
+      initialContext: event.data.initialData || {},
+    });
+
+    let context = executionPlan.initialContext;
 
     // Execute each node
-    for (const node of sortedNodes) {
+    for (const node of executionPlan.nodesToExecute) {
+      const pinnedDataPatch = getPinnedDataPatch(node.data);
+      if (pinnedDataPatch) {
+        context = applyPinnedDataPatch(context, pinnedDataPatch);
+        continue;
+      }
+
       const executor = getExecutor(node.type as NodeType);
       context = await executor({
         data: node.data as Record<string, unknown>,
@@ -105,9 +128,9 @@ export const executeWorkflow = inngest.createFunction(
         data: {
           status: ExecutionStatus.SUCCESS,
           completedAt: new Date(),
-          output: context,
+          output: context as Prisma.InputJsonValue,
         },
-      })
+      });
     });
 
     return {

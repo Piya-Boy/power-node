@@ -16,16 +16,17 @@ import {
   ReactFlow,
   ReactFlowProvider,
 } from "@xyflow/react";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { ErrorView, LoadingView } from "@/components/entity-components";
 import {
+  useExecuteWorkflow,
   useSuspenseWorkflow,
   useUpdateWorkflow,
 } from "@/features/workflows/hooks/use-workflows";
 
 import "@xyflow/react/dist/style.css";
-import { useSetAtom } from "jotai";
-import { RedoIcon, Sparkles, UndoIcon } from "lucide-react";
+import { useAtom, useSetAtom } from "jotai";
+import { RedoIcon, Sparkles, UndoIcon, XIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Tooltip,
@@ -53,7 +54,6 @@ export const EditorError = () => {
 };
 
 function EditorCanvas({
-  workflowId,
   nodes,
   edges,
   onNodesChange,
@@ -68,9 +68,13 @@ function EditorCanvas({
   canRedo,
   showAiDialog,
   setShowAiDialog,
+  debugStartNodeId,
+  debugStartNodeLabel,
   hasManualTrigger,
+  isExecuting,
+  onClearDebugStart,
+  onExecuteWorkflow,
 }: {
-  workflowId: string;
   nodes: Node[];
   edges: Edge[];
   onNodesChange: (changes: NodeChange[]) => void;
@@ -89,9 +93,15 @@ function EditorCanvas({
   canRedo: boolean;
   showAiDialog: boolean;
   setShowAiDialog: React.Dispatch<React.SetStateAction<boolean>>;
+  debugStartNodeId: string | null;
+  debugStartNodeLabel: string | null;
   hasManualTrigger: boolean;
+  isExecuting: boolean;
+  onClearDebugStart: () => void;
+  onExecuteWorkflow: () => void;
 }) {
   const { onDragOver, onDrop } = useNodeDrop();
+  const canExecuteWorkflow = hasManualTrigger || Boolean(debugStartNodeId);
 
   return (
     <div className="flex-1 min-h-0 min-w-0 relative">
@@ -170,9 +180,25 @@ function EditorCanvas({
           onOpenChange={setShowAiDialog}
           apiKey=""
         />
-        {hasManualTrigger && (
+        {canExecuteWorkflow && (
           <Panel position="bottom-center">
-            <ExecuteWorkflowButton workflowId={workflowId} />
+            <div className="flex items-center gap-2 rounded-full border bg-background/95 px-2 py-2 shadow-sm backdrop-blur">
+              <ExecuteWorkflowButton
+                debugStartNodeLabel={debugStartNodeLabel}
+                isPending={isExecuting}
+                onExecute={onExecuteWorkflow}
+              />
+              {debugStartNodeId && (
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  className="size-10 rounded-full"
+                  onClick={onClearDebugStart}
+                >
+                  <XIcon className="size-4" />
+                </Button>
+              )}
+            </div>
           </Panel>
         )}
       </ReactFlow>
@@ -184,12 +210,14 @@ export const Editor = ({ workflowId }: { workflowId: string }) => {
   const { data: workflow } = useSuspenseWorkflow(workflowId);
 
   const setEditor = useSetAtom(editorAtom);
-  const setSelectedNode = useSetAtom(selectedNodeAtom);
+  const [selectedNode, setSelectedNode] = useAtom(selectedNodeAtom);
   const saveWorkflow = useUpdateWorkflow();
+  const executeWorkflow = useExecuteWorkflow();
 
   const [nodes, setNodes] = useState<Node[]>(workflow.nodes);
   const [edges, setEdges] = useState<Edge[]>(workflow.edges);
   const [showAiDialog, setShowAiDialog] = useState(false);
+  const [debugStartNodeId, setDebugStartNodeId] = useState<string | null>(null);
 
   const { undo, redo, canUndo, canRedo, takeSnapshot } = useUndoRedo(
     nodes,
@@ -241,6 +269,32 @@ export const Editor = ({ workflowId }: { workflowId: string }) => {
     setSelectedNode(null);
   }, [setSelectedNode]);
 
+  useEffect(() => {
+    if (!selectedNode) {
+      return;
+    }
+
+    const liveSelectedNode =
+      nodes.find((node) => node.id === selectedNode.id) ?? null;
+    if (!liveSelectedNode) {
+      setSelectedNode(null);
+      return;
+    }
+
+    if (liveSelectedNode !== selectedNode) {
+      setSelectedNode(liveSelectedNode);
+    }
+  }, [nodes, selectedNode, setSelectedNode]);
+
+  useEffect(() => {
+    if (
+      debugStartNodeId &&
+      !nodes.some((node) => node.id === debugStartNodeId)
+    ) {
+      setDebugStartNodeId(null);
+    }
+  }, [debugStartNodeId, nodes]);
+
   const handleSave = useCallback(() => {
     saveWorkflow.mutate({ id: workflowId, nodes, edges });
   }, [saveWorkflow, workflowId, nodes, edges]);
@@ -277,12 +331,81 @@ export const Editor = ({ workflowId }: { workflowId: string }) => {
     return nodes.some((node) => node.type === NodeType.MANUAL_TRIGGER);
   }, [nodes]);
 
+  const debugStartNodeLabel = useMemo(() => {
+    if (!debugStartNodeId) {
+      return null;
+    }
+
+    const debugStartNode = nodes.find((node) => node.id === debugStartNodeId);
+    if (!debugStartNode) {
+      return null;
+    }
+
+    return (
+      nodeTypeLabelsForExecutionButton[debugStartNode.type as string] ??
+      debugStartNode.type ??
+      "selected node"
+    );
+  }, [debugStartNodeId, nodes]);
+
+  const workflowSnapshot = useMemo(() => {
+    return {
+      nodes: nodes.map((node) => ({
+        id: node.id,
+        type: node.type,
+        position: node.position,
+        data: (node.data as Record<string, unknown>) || {},
+      })),
+      edges: edges.map((edge) => ({
+        source: edge.source,
+        target: edge.target,
+        sourceHandle: edge.sourceHandle,
+        targetHandle: edge.targetHandle,
+      })),
+    };
+  }, [edges, nodes]);
+
+  const handleExecuteWorkflow = useCallback(
+    (overrideDebugStartNodeId?: string | null) => {
+      executeWorkflow.mutate({
+        id: workflowId,
+        debugStartNodeId:
+          overrideDebugStartNodeId ?? debugStartNodeId ?? undefined,
+        ...workflowSnapshot,
+      });
+    },
+    [debugStartNodeId, executeWorkflow, workflowId, workflowSnapshot],
+  );
+
+  const handleUpdateNodeData = useCallback(
+    (nodeId: string, data: Record<string, unknown>) => {
+      setNodes((currentNodes) =>
+        currentNodes.map((node) =>
+          node.id === nodeId
+            ? {
+                ...node,
+                data,
+              }
+            : node,
+        ),
+      );
+      setSelectedNode((currentNode) =>
+        currentNode?.id === nodeId
+          ? {
+              ...currentNode,
+              data,
+            }
+          : currentNode,
+      );
+    },
+    [setSelectedNode],
+  );
+
   return (
     <div className="size-full flex min-h-0">
       <div className="flex-1 min-h-0 min-w-0 flex flex-col">
         <ReactFlowProvider>
           <EditorCanvas
-            workflowId={workflowId}
             nodes={nodes}
             edges={edges}
             onNodesChange={onNodesChange}
@@ -297,11 +420,34 @@ export const Editor = ({ workflowId }: { workflowId: string }) => {
             canRedo={canRedo}
             showAiDialog={showAiDialog}
             setShowAiDialog={setShowAiDialog}
+            debugStartNodeId={debugStartNodeId}
+            debugStartNodeLabel={debugStartNodeLabel}
             hasManualTrigger={hasManualTrigger}
+            isExecuting={executeWorkflow.isPending}
+            onClearDebugStart={() => setDebugStartNodeId(null)}
+            onExecuteWorkflow={() => handleExecuteWorkflow()}
           />
         </ReactFlowProvider>
       </div>
-      <NodeConfigPanel />
+      <NodeConfigPanel
+        debugStartNodeId={debugStartNodeId}
+        isExecuting={executeWorkflow.isPending}
+        onExecuteFromNode={(nodeId) => handleExecuteWorkflow(nodeId)}
+        onSetDebugStartNode={setDebugStartNodeId}
+        onUpdateNodeData={handleUpdateNodeData}
+      />
     </div>
   );
+};
+
+const nodeTypeLabelsForExecutionButton: Record<string, string> = {
+  [NodeType.MANUAL_TRIGGER]: "Manual Trigger",
+  [NodeType.GOOGLE_FORM_TRIGGER]: "Google Form Trigger",
+  [NodeType.STRIPE_TRIGGER]: "Stripe Trigger",
+  [NodeType.HTTP_REQUEST]: "HTTP Request",
+  [NodeType.OPENAI]: "OpenAI",
+  [NodeType.ANTHROPIC]: "Anthropic",
+  [NodeType.GEMINI]: "Gemini",
+  [NodeType.DISCORD]: "Discord",
+  [NodeType.SLACK]: "Slack",
 };
