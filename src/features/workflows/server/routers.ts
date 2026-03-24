@@ -4,6 +4,12 @@ import type { Edge, Node } from "@xyflow/react";
 import { generateSlug } from "random-word-slugs";
 import z from "zod";
 import { PAGINATION } from "@/config/constants";
+import {
+  type GenerateWorkflowModelId,
+  generateWorkflowFromPromptWithCredential,
+  suggestWorkflowImprovements,
+  updateWorkflowWithAssistant,
+} from "@/features/ai-workflow/server/workflow-assistant";
 import { generateApiKey } from "@/features/workflows/lib/api-key";
 import {
   exportWorkflow,
@@ -21,6 +27,22 @@ import {
   premiumProcedure,
   protectedProcedure,
 } from "@/trpc/init";
+
+const workflowNodeInputSchema = z.object({
+  id: z.string(),
+  type: z.string(),
+  position: z.object({ x: z.number(), y: z.number() }),
+  data: z.record(z.string(), z.unknown()).optional(),
+});
+
+const workflowEdgeInputSchema = z.object({
+  source: z.string(),
+  target: z.string(),
+  sourceHandle: z.string().nullish(),
+  targetHandle: z.string().nullish(),
+});
+
+const aiModelIdSchema = z.enum(["gpt-4o", "gpt-4o-mini"]);
 
 export const workflowsRouter = createTRPCRouter({
   execute: protectedProcedure
@@ -46,6 +68,92 @@ export const workflowsRouter = createTRPCRouter({
       });
 
       return workflow;
+    }),
+  generateWithAi: protectedProcedure
+    .input(
+      z.object({
+        prompt: z.string().min(1),
+        credentialId: z.string(),
+        modelId: aiModelIdSchema.default("gpt-4o"),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      return generateWorkflowFromPromptWithCredential({
+        userId: ctx.auth.user.id,
+        credentialId: input.credentialId,
+        prompt: input.prompt,
+        modelId: input.modelId as GenerateWorkflowModelId,
+      });
+    }),
+  suggestWithAi: protectedProcedure
+    .input(
+      z.object({
+        credentialId: z.string(),
+        modelId: aiModelIdSchema.default("gpt-4o"),
+        nodes: z.array(workflowNodeInputSchema),
+        edges: z.array(workflowEdgeInputSchema),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      return suggestWorkflowImprovements({
+        userId: ctx.auth.user.id,
+        credentialId: input.credentialId,
+        modelId: input.modelId as GenerateWorkflowModelId,
+        nodes: input.nodes.map((node) => ({
+          id: node.id,
+          type: node.type,
+          name: node.type,
+          position: node.position,
+          data: node.data || {},
+        })),
+        connections: input.edges.map((edge) => ({
+          fromNodeId: edge.source,
+          toNodeId: edge.target,
+          fromOutput: edge.sourceHandle || "main",
+          toInput: edge.targetHandle || "main",
+        })),
+      });
+    }),
+  chatWithAi: protectedProcedure
+    .input(
+      z.object({
+        prompt: z.string().min(1),
+        credentialId: z.string(),
+        modelId: aiModelIdSchema.default("gpt-4o"),
+        nodes: z.array(workflowNodeInputSchema),
+        edges: z.array(workflowEdgeInputSchema),
+        history: z
+          .array(
+            z.object({
+              role: z.enum(["user", "assistant"]),
+              content: z.string().min(1),
+            }),
+          )
+          .max(12)
+          .optional(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      return updateWorkflowWithAssistant({
+        userId: ctx.auth.user.id,
+        credentialId: input.credentialId,
+        modelId: input.modelId as GenerateWorkflowModelId,
+        prompt: input.prompt,
+        history: input.history,
+        nodes: input.nodes.map((node) => ({
+          id: node.id,
+          type: node.type,
+          name: node.type,
+          position: node.position,
+          data: node.data || {},
+        })),
+        connections: input.edges.map((edge) => ({
+          fromNodeId: edge.source,
+          toNodeId: edge.target,
+          fromOutput: edge.sourceHandle || "main",
+          toInput: edge.targetHandle || "main",
+        })),
+      });
     }),
   create: premiumProcedure.mutation(({ ctx }) => {
     return prisma.workflow.create({
@@ -77,21 +185,12 @@ export const workflowsRouter = createTRPCRouter({
       z.object({
         id: z.string(),
         nodes: z.array(
-          z.object({
-            id: z.string(),
+          workflowNodeInputSchema.extend({
             type: z.string().nullish(),
-            position: z.object({ x: z.number(), y: z.number() }),
             data: z.record(z.string(), z.any()).optional(),
           }),
         ),
-        edges: z.array(
-          z.object({
-            source: z.string(),
-            target: z.string(),
-            sourceHandle: z.string().nullish(),
-            targetHandle: z.string().nullish(),
-          }),
-        ),
+        edges: z.array(workflowEdgeInputSchema),
       }),
     )
     .mutation(async ({ ctx, input }) => {

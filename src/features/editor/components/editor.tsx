@@ -16,7 +16,7 @@ import {
   ReactFlow,
   ReactFlowProvider,
 } from "@xyflow/react";
-import { useCallback, useMemo, useState } from "react";
+import { startTransition, useCallback, useMemo, useState } from "react";
 import { ErrorView, LoadingView } from "@/components/entity-components";
 import {
   useSuspenseWorkflow,
@@ -62,6 +62,7 @@ function EditorCanvas({
   setEditor,
   onNodeClick,
   onPaneClick,
+  onApplyWorkflow,
   undo,
   redo,
   canUndo,
@@ -83,6 +84,7 @@ function EditorCanvas({
   ) => void;
   onNodeClick: (_: React.MouseEvent, node: Node) => void;
   onPaneClick: () => void;
+  onApplyWorkflow: (workflow: { nodes: Node[]; edges: Edge[] }) => void;
   undo: () => void;
   redo: () => void;
   canUndo: boolean;
@@ -168,7 +170,9 @@ function EditorCanvas({
         <AiWorkflowDialog
           open={showAiDialog}
           onOpenChange={setShowAiDialog}
-          apiKey=""
+          nodes={nodes}
+          edges={edges}
+          onApplyWorkflow={onApplyWorkflow}
         />
         {hasManualTrigger && (
           <Panel position="bottom-center">
@@ -241,6 +245,18 @@ export const Editor = ({ workflowId }: { workflowId: string }) => {
     setSelectedNode(null);
   }, [setSelectedNode]);
 
+  const onApplyWorkflow = useCallback(
+    (workflow: { nodes: Node[]; edges: Edge[] }) => {
+      takeSnapshot();
+      startTransition(() => {
+        setNodes(workflow.nodes);
+        setEdges(workflow.edges);
+      });
+      setSelectedNode(null);
+    },
+    [setSelectedNode, takeSnapshot],
+  );
+
   const handleSave = useCallback(() => {
     saveWorkflow.mutate({ id: workflowId, nodes, edges });
   }, [saveWorkflow, workflowId, nodes, edges]);
@@ -291,6 +307,7 @@ export const Editor = ({ workflowId }: { workflowId: string }) => {
             setEditor={setEditor}
             onNodeClick={onNodeClick}
             onPaneClick={onPaneClick}
+            onApplyWorkflow={onApplyWorkflow}
             undo={undo}
             redo={redo}
             canUndo={canUndo}
