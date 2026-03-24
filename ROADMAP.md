@@ -15,6 +15,7 @@
 
 - **AI Workflow Generator (UI)** — จาก modal กลางจอเป็น **floating composer** ด้านล่าง (rounded pill, shadow); placeholder แบบ “What would you like to change or create?”; **Enter** สร้าง workflow / **Shift+Enter** ขึ้นบรรทัดใหม่; ปุ่ม **+** เปิด Popover “Try an example”; เลือก **GPT-4o** หรือ **GPT-4o mini** ผ่าน `generateWorkflowFromPrompt(..., { modelId })`; ตอนกำลังคิดแสดง **กรอบแดง + ring** และ `aria-busy`
 - **Editor UX** — รวมรายการ node ทั้งหมดใน Sheet ขวา *“What triggers this workflow?”* พร้อมค้นหาและหมวดหมู่; แหล่งข้อมูลเดียวที่ `src/features/editor/lib/node-catalog.tsx`; เพิ่ม node จากปุ่ม **+** บน canvas หรือจาก **Initial node**
+- **Editor Testing Tools** — panel ด้านขวารองรับ **Pinned mock output** ต่อ node แล้ว; ปุ่ม execute ส่ง `pinnedData` + `startNodeId`; Inngest execution plan จะ inject mock output เข้าสู่ context และรองรับ **Debug mode** แบบเริ่มรันจาก node ที่เลือก
 - **React Flow** — ห่อ `ReactFlowProvider` ให้ `useReactFlow()` / `useNodeDrop()` ทำงานถูก context (แก้ error zustand provider)
 - **Inngest Realtime** — subscription token แบบ opt-in ด้วย `NEXT_PUBLIC_INNGEST_REALTIME_ENABLED=true` (ค่าเริ่มต้นปิดเพื่อไม่ให้ dev โดน 401 เมื่อยังไม่ตั้ง signing key); ดู `.env.example`
 - **Build / deps** — ต้อง `npm install` ให้ครบเมื่อมี dependency ใหม่ (เช่น `@better-auth/infra`)
@@ -35,8 +36,8 @@
 - [x] **Multi-select Nodes** — เลือกหลาย node พร้อมกัน
 - [x] **Sticky Notes** — เพิ่ม note/comment บน canvas เพื่อ documentation
 - [x] **Keyboard Shortcuts** — shortcut สำหรับ canvas operations
-- [ ] **Data Pinning / Mocking** — test node โดยใช้ fixed data โดยไม่ต้องรัน live
-- [ ] **Debug Mode** — re-run workflow จาก node ที่ต้องการได้เลย
+- [x] **Data Pinning / Mocking** — test node โดยใช้ fixed data โดยไม่ต้องรัน live
+- [x] **Debug Mode** — re-run workflow จาก node ที่ต้องการได้เลย
 
 ---
 
