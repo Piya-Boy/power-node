@@ -25,6 +25,16 @@ export const nodeDefaults: Partial<Record<string, Record<string, unknown>>> = {
   [NodeType.STRIPE_TRIGGER]: {
     variableName: "stripe",
   },
+  [NodeType.EMAIL_TRIGGER]: {
+    variableName: "email",
+    mailbox: "INBOX",
+    unseenOnly: true,
+    markAsSeen: true,
+    maxMessages: 10,
+  },
+  [NodeType.ERROR_TRIGGER]: {
+    variableName: "error",
+  },
   [NodeType.HTTP_REQUEST]: {
     variableName: "httpResult",
     method: "GET",

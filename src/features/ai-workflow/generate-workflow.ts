@@ -1,41 +1,14 @@
 import { createOpenAI } from "@ai-sdk/openai";
-import { createId } from "@paralleldrive/cuid2";
 import { generateObject } from "ai";
-import { z } from "zod";
-import { NodeType } from "@/generated/prisma";
+import {
+  availableNodeTypes,
+  normalizeWorkflowDefinition,
+  triggerNodeTypes,
+  type WorkflowDefinition,
+  workflowSchema,
+} from "./lib/workflow-definition";
 
-// All available node types for the AI to use
-const availableNodeTypes = Object.values(NodeType).filter(
-  (t) => t !== "INITIAL",
-);
-
-const workflowSchema = z.object({
-  nodes: z.array(
-    z.object({
-      id: z.string().describe("Unique identifier for this node"),
-      type: z.string().describe("The NodeType enum value"),
-      name: z.string().describe("Human-readable name for this node"),
-      position: z.object({
-        x: z.number(),
-        y: z.number(),
-      }),
-      data: z
-        .record(z.string(), z.unknown())
-        .describe("Configuration data for this node"),
-    }),
-  ),
-  connections: z.array(
-    z.object({
-      fromNodeId: z.string(),
-      toNodeId: z.string(),
-      fromOutput: z.string().default("main"),
-      toInput: z.string().default("main"),
-    }),
-  ),
-  summary: z.string().describe("Brief description of what this workflow does"),
-});
-
-export type GeneratedWorkflow = z.infer<typeof workflowSchema>;
+export type GeneratedWorkflow = WorkflowDefinition;
 
 export type GenerateWorkflowModelId = "gpt-4o" | "gpt-4o-mini";
 
@@ -63,6 +36,8 @@ Key Node Type Descriptions:
 - WEBHOOK_TRIGGER: Receives HTTP webhook requests
 - SCHEDULE_TRIGGER: Runs on a cron schedule
 - CHAT_TRIGGER: Triggered by a chat message
+- EMAIL_TRIGGER: Polls an IMAP inbox for matching email
+- ERROR_TRIGGER: Runs when another workflow fails
 - HTTP_REQUEST: Makes HTTP requests (data: { variableName, endpoint, method, body })
 - OPENAI: AI text generation (data: { variableName, systemPrompt, userPrompt })
 - ANTHROPIC: AI text generation (data: { variableName, systemPrompt, userPrompt })
@@ -86,7 +61,7 @@ Key Node Type Descriptions:
 - STICKY_NOTE: Add comments (data: { text, color })
 
 Rules:
-1. Every workflow must start with a trigger node (MANUAL_TRIGGER, WEBHOOK_TRIGGER, SCHEDULE_TRIGGER, or CHAT_TRIGGER)
+1. Every workflow must start with a trigger node (${triggerNodeTypes.join(", ")})
 2. Assign unique IDs using format "node_1", "node_2", etc.
 3. Position nodes left-to-right with ~250px horizontal spacing and ~100px vertical spacing
 4. Start positions at x:100, y:200
@@ -98,18 +73,5 @@ Rules:
     schema: workflowSchema,
   });
 
-  // Remap IDs to real cuid2 IDs
-  const idMap = new Map<string, string>();
-  for (const node of object.nodes) {
-    const newId = createId();
-    idMap.set(node.id, newId);
-    node.id = newId;
-  }
-
-  for (const conn of object.connections) {
-    conn.fromNodeId = idMap.get(conn.fromNodeId) || conn.fromNodeId;
-    conn.toNodeId = idMap.get(conn.toNodeId) || conn.toNodeId;
-  }
-
-  return object;
+  return normalizeWorkflowDefinition(object);
 }

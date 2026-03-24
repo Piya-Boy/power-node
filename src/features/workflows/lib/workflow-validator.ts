@@ -8,13 +8,23 @@ export interface ValidationResult {
 
 export interface ValidationError {
   nodeId?: string;
-  type: "missing_trigger" | "orphan_node" | "cycle" | "missing_credential" | "invalid_config" | "duplicate_connection";
+  type:
+    | "missing_trigger"
+    | "orphan_node"
+    | "cycle"
+    | "missing_credential"
+    | "invalid_config"
+    | "duplicate_connection";
   message: string;
 }
 
 export interface ValidationWarning {
   nodeId?: string;
-  type: "unused_output" | "no_error_handling" | "complex_workflow" | "missing_name";
+  type:
+    | "unused_output"
+    | "no_error_handling"
+    | "complex_workflow"
+    | "missing_name";
   message: string;
 }
 
@@ -25,6 +35,8 @@ const TRIGGER_TYPES: string[] = [
   NodeType.CHAT_TRIGGER,
   NodeType.GOOGLE_FORM_TRIGGER,
   NodeType.STRIPE_TRIGGER,
+  NodeType.EMAIL_TRIGGER,
+  NodeType.ERROR_TRIGGER,
 ];
 
 const CREDENTIAL_REQUIRED_TYPES: string[] = [
@@ -64,10 +76,14 @@ export function validateWorkflow(
   const warnings: ValidationWarning[] = [];
 
   // Filter out non-functional nodes
-  const functionalNodes = nodes.filter((n) => n.type !== NodeType.INITIAL && n.type !== NodeType.STICKY_NOTE);
+  const functionalNodes = nodes.filter(
+    (n) => n.type !== NodeType.INITIAL && n.type !== NodeType.STICKY_NOTE,
+  );
 
   // 1. Check for trigger
-  const hasTrigger = functionalNodes.some((n) => TRIGGER_TYPES.includes(n.type));
+  const hasTrigger = functionalNodes.some((n) =>
+    TRIGGER_TYPES.includes(n.type),
+  );
   if (!hasTrigger && functionalNodes.length > 0) {
     errors.push({
       type: "missing_trigger",
@@ -194,25 +210,66 @@ export function getNodeValidationRules(nodeType: string): {
 } {
   switch (nodeType) {
     case NodeType.HTTP_REQUEST:
-      return { requiredFields: ["endpoint", "method"], optionalFields: ["body", "headers", "variableName"] };
+      return {
+        requiredFields: ["endpoint", "method"],
+        optionalFields: ["body", "headers", "variableName"],
+      };
     case NodeType.OPENAI:
     case NodeType.ANTHROPIC:
     case NodeType.GEMINI:
-      return { requiredFields: ["userPrompt"], optionalFields: ["systemPrompt", "variableName", "model"] };
+      return {
+        requiredFields: ["userPrompt"],
+        optionalFields: ["systemPrompt", "variableName", "model"],
+      };
     case NodeType.IF_CONDITION:
-      return { requiredFields: ["field", "operator", "value"], optionalFields: ["variableName"] };
+      return {
+        requiredFields: ["field", "operator", "value"],
+        optionalFields: ["variableName"],
+      };
     case NodeType.CODE:
-      return { requiredFields: ["code"], optionalFields: ["language", "variableName"] };
+      return {
+        requiredFields: ["code"],
+        optionalFields: ["language", "variableName"],
+      };
     case NodeType.TELEGRAM:
-      return { requiredFields: ["chatId", "message"], optionalFields: ["variableName"] };
+      return {
+        requiredFields: ["chatId", "message"],
+        optionalFields: ["variableName"],
+      };
     case NodeType.EMAIL_SMTP:
-      return { requiredFields: ["to", "subject", "body"], optionalFields: ["variableName"] };
+      return {
+        requiredFields: ["to", "subject", "body"],
+        optionalFields: ["variableName"],
+      };
     case NodeType.DISCORD:
-      return { requiredFields: ["webhookUrl", "content"], optionalFields: ["variableName"] };
+      return {
+        requiredFields: ["webhookUrl", "content"],
+        optionalFields: ["variableName"],
+      };
     case NodeType.SLACK:
-      return { requiredFields: ["webhookUrl", "text"], optionalFields: ["variableName"] };
+      return {
+        requiredFields: ["webhookUrl", "text"],
+        optionalFields: ["variableName"],
+      };
     case NodeType.SCHEDULE_TRIGGER:
       return { requiredFields: ["cron"], optionalFields: ["variableName"] };
+    case NodeType.EMAIL_TRIGGER:
+      return {
+        requiredFields: ["credentialId", "mailbox"],
+        optionalFields: [
+          "variableName",
+          "from",
+          "subject",
+          "unseenOnly",
+          "markAsSeen",
+          "maxMessages",
+        ],
+      };
+    case NodeType.ERROR_TRIGGER:
+      return {
+        requiredFields: [],
+        optionalFields: ["variableName", "sourceWorkflowId", "messageIncludes"],
+      };
     default:
       return { requiredFields: [], optionalFields: ["variableName"] };
   }

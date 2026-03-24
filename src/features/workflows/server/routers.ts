@@ -1,21 +1,58 @@
-import { generateSlug } from "random-word-slugs";
-import prisma from "@/lib/db";
-import type { Node, Edge } from "@xyflow/react";
-import { createTRPCRouter, premiumProcedure, protectedProcedure } from "@/trpc/init";
-import z from "zod";
-import { TRPCError } from "@trpc/server";
-import { PAGINATION } from "@/config/constants";
-import { NodeType } from "@/generated/prisma";
-import { inngest } from "@/inngest/client";
-import { sendWorkflowExecution } from "@/inngest/utils";
-import { generateApiKey } from "@/features/workflows/lib/api-key";
-import { generateWebhookSecret, getWebhookUrl } from "@/features/workflows/lib/webhook-url";
-import { exportWorkflow, validateImport } from "@/features/workflows/lib/export-import";
 import { createId } from "@paralleldrive/cuid2";
+import { TRPCError } from "@trpc/server";
+import type { Edge, Node } from "@xyflow/react";
+import { generateSlug } from "random-word-slugs";
+import z from "zod";
+import { PAGINATION } from "@/config/constants";
+import {
+  type GenerateWorkflowModelId,
+  generateWorkflowFromPromptWithCredential,
+  suggestWorkflowImprovements,
+  updateWorkflowWithAssistant,
+} from "@/features/ai-workflow/server/workflow-assistant";
+import { generateApiKey } from "@/features/workflows/lib/api-key";
+import {
+  exportWorkflow,
+  validateImport,
+} from "@/features/workflows/lib/export-import";
+import {
+  generateWebhookSecret,
+  getWebhookUrl,
+} from "@/features/workflows/lib/webhook-url";
+import { NodeType } from "@/generated/prisma";
+import { sendWorkflowExecution } from "@/inngest/utils";
+import prisma from "@/lib/db";
+import {
+  createTRPCRouter,
+  premiumProcedure,
+  protectedProcedure,
+} from "@/trpc/init";
+
+const workflowNodeInputSchema = z.object({
+  id: z.string(),
+  type: z.string(),
+  position: z.object({ x: z.number(), y: z.number() }),
+  data: z.record(z.string(), z.unknown()).optional(),
+});
+
+const workflowEdgeInputSchema = z.object({
+  source: z.string(),
+  target: z.string(),
+  sourceHandle: z.string().nullish(),
+  targetHandle: z.string().nullish(),
+});
+
+const aiModelIdSchema = z.enum(["gpt-4o", "gpt-4o-mini"]);
 
 export const workflowsRouter = createTRPCRouter({
   execute: protectedProcedure
-    .input(z.object({ id: z.string() }))
+    .input(
+      z.object({
+        id: z.string(),
+        startNodeId: z.string().optional(),
+        pinnedData: z.record(z.string(), z.unknown()).optional(),
+      }),
+    )
     .mutation(async ({ input, ctx }) => {
       const workflow = await prisma.workflow.findUniqueOrThrow({
         where: {
@@ -26,9 +63,97 @@ export const workflowsRouter = createTRPCRouter({
 
       await sendWorkflowExecution({
         workflowId: input.id,
+        startNodeId: input.startNodeId,
+        pinnedData: input.pinnedData,
       });
 
       return workflow;
+    }),
+  generateWithAi: protectedProcedure
+    .input(
+      z.object({
+        prompt: z.string().min(1),
+        credentialId: z.string(),
+        modelId: aiModelIdSchema.default("gpt-4o"),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      return generateWorkflowFromPromptWithCredential({
+        userId: ctx.auth.user.id,
+        credentialId: input.credentialId,
+        prompt: input.prompt,
+        modelId: input.modelId as GenerateWorkflowModelId,
+      });
+    }),
+  suggestWithAi: protectedProcedure
+    .input(
+      z.object({
+        credentialId: z.string(),
+        modelId: aiModelIdSchema.default("gpt-4o"),
+        nodes: z.array(workflowNodeInputSchema),
+        edges: z.array(workflowEdgeInputSchema),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      return suggestWorkflowImprovements({
+        userId: ctx.auth.user.id,
+        credentialId: input.credentialId,
+        modelId: input.modelId as GenerateWorkflowModelId,
+        nodes: input.nodes.map((node) => ({
+          id: node.id,
+          type: node.type,
+          name: node.type,
+          position: node.position,
+          data: node.data || {},
+        })),
+        connections: input.edges.map((edge) => ({
+          fromNodeId: edge.source,
+          toNodeId: edge.target,
+          fromOutput: edge.sourceHandle || "main",
+          toInput: edge.targetHandle || "main",
+        })),
+      });
+    }),
+  chatWithAi: protectedProcedure
+    .input(
+      z.object({
+        prompt: z.string().min(1),
+        credentialId: z.string(),
+        modelId: aiModelIdSchema.default("gpt-4o"),
+        nodes: z.array(workflowNodeInputSchema),
+        edges: z.array(workflowEdgeInputSchema),
+        history: z
+          .array(
+            z.object({
+              role: z.enum(["user", "assistant"]),
+              content: z.string().min(1),
+            }),
+          )
+          .max(12)
+          .optional(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      return updateWorkflowWithAssistant({
+        userId: ctx.auth.user.id,
+        credentialId: input.credentialId,
+        modelId: input.modelId as GenerateWorkflowModelId,
+        prompt: input.prompt,
+        history: input.history,
+        nodes: input.nodes.map((node) => ({
+          id: node.id,
+          type: node.type,
+          name: node.type,
+          position: node.position,
+          data: node.data || {},
+        })),
+        connections: input.edges.map((edge) => ({
+          fromNodeId: edge.source,
+          toNodeId: edge.target,
+          fromOutput: edge.sourceHandle || "main",
+          toInput: edge.targetHandle || "main",
+        })),
+      });
     }),
   create: premiumProcedure.mutation(({ ctx }) => {
     return prisma.workflow.create({
@@ -53,28 +178,19 @@ export const workflowsRouter = createTRPCRouter({
           id: input.id,
           userId: ctx.auth.user.id,
         },
-      })
+      });
     }),
   update: protectedProcedure
     .input(
-      z.object({ 
-        id: z.string(), 
+      z.object({
+        id: z.string(),
         nodes: z.array(
-          z.object({
-            id: z.string(),
+          workflowNodeInputSchema.extend({
             type: z.string().nullish(),
-            position: z.object({ x: z.number(), y: z.number() }),
             data: z.record(z.string(), z.any()).optional(),
           }),
         ),
-        edges: z.array(
-          z.object({
-            source: z.string(),
-            target: z.string(),
-            sourceHandle: z.string().nullish(),
-            targetHandle: z.string().nullish(),
-          }),
-        ),
+        edges: z.array(workflowEdgeInputSchema),
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -143,7 +259,7 @@ export const workflowsRouter = createTRPCRouter({
       const nodes: Node[] = workflow.nodes.map((node) => ({
         id: node.id,
         type: node.type,
-        position: node.position as { x: number, y: number },
+        position: node.position as { x: number; y: number },
         data: (node.data as Record<string, unknown>) || {},
       }));
 
@@ -184,7 +300,7 @@ export const workflowsRouter = createTRPCRouter({
     .input(z.object({ id: z.string() }))
     .mutation(async ({ ctx, input }) => {
       const secret = generateWebhookSecret();
-      const workflow = await prisma.workflow.update({
+      await prisma.workflow.update({
         where: { id: input.id, userId: ctx.auth.user.id },
         data: { webhookSecret: secret },
       });
@@ -201,7 +317,11 @@ export const workflowsRouter = createTRPCRouter({
         include: { nodes: true, connections: true },
       });
       return exportWorkflow(
-        { name: workflow.name, description: workflow.description, tags: workflow.tags },
+        {
+          name: workflow.name,
+          description: workflow.description,
+          tags: workflow.tags,
+        },
         workflow.nodes.map((n) => ({
           id: n.id,
           type: n.type,
@@ -238,7 +358,12 @@ export const workflowsRouter = createTRPCRouter({
         },
       });
       // Return the raw key only once (on creation)
-      return { id: apiKey.id, name: apiKey.name, key, createdAt: apiKey.createdAt };
+      return {
+        id: apiKey.id,
+        name: apiKey.name,
+        key,
+        createdAt: apiKey.createdAt,
+      };
     }),
   listApiKeys: protectedProcedure.query(async ({ ctx }) => {
     const keys = await prisma.apiKey.findMany({
@@ -383,7 +508,7 @@ export const workflowsRouter = createTRPCRouter({
           .max(PAGINATION.MAX_PAGE_SIZE)
           .default(PAGINATION.DEFAULT_PAGE_SIZE),
         search: z.string().default(""),
-      })
+      }),
     )
     .query(async ({ ctx, input }) => {
       const { page, pageSize, search } = input;
@@ -392,7 +517,7 @@ export const workflowsRouter = createTRPCRouter({
         prisma.workflow.findMany({
           skip: (page - 1) * pageSize,
           take: pageSize,
-          where: { 
+          where: {
             userId: ctx.auth.user.id,
             name: {
               contains: search,

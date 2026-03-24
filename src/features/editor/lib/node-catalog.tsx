@@ -95,6 +95,20 @@ const triggerNodes: NodeTypeOption[] = [
     category: "trigger",
   },
   {
+    type: NodeType.EMAIL_TRIGGER,
+    label: "Email",
+    description: "Poll an IMAP inbox for new messages",
+    icon: MailIcon,
+    category: "trigger",
+  },
+  {
+    type: NodeType.ERROR_TRIGGER,
+    label: "Workflow Error",
+    description: "Runs when another workflow fails",
+    icon: OctagonXIcon,
+    category: "trigger",
+  },
+  {
     type: NodeType.WEBHOOK_TRIGGER,
     label: "Webhook",
     description: "Receives HTTP webhook requests",

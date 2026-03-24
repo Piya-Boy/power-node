@@ -4,17 +4,21 @@
 
 - Authentication (Email / GitHub / Google OAuth) — Better Auth + optional `@better-auth/infra` (dash) เมื่อติดตั้ง dependency ครบ
 - Visual Workflow Editor (React Flow)
-- **~47 node types** ใน catalog เดียว (Triggers, Logic, Data, Integrations, AI, Utilities)
+- **~51 node types** ใน catalog เดียว (Triggers, Logic, Data, Integrations, AI, Utilities)
 - Credential Storage (Encrypted API Keys)
 - Workflow Execution Engine (Inngest)
 - Execution History & Tracking
 - Billing & Subscription (Polar)
-- **AI Workflow Generator** — composer แบบแถบลอยด้านล่าง (pill); เลือกโมเดล GPT-4o / GPT-4o mini; ตัวอย่าง prompt จากปุ่ม **+**; กรอบแดงขณะกำลัง generate (`src/features/ai-workflow/ai-workflow-dialog.tsx`)
+- **AI Workflow Generator** — composer แบบแถบลอยด้านล่าง (pill) พร้อม **Generate / Suggestions / Chat**; เลือกโมเดล GPT-4o / GPT-4o mini; ตัวอย่าง prompt จากปุ่ม **+**; auto-fix execution errors ด้วย AI (`src/features/ai-workflow/ai-workflow-dialog.tsx`)
 
 ### 📝 Recent updates (Mar 2026)
 
 - **AI Workflow Generator (UI)** — จาก modal กลางจอเป็น **floating composer** ด้านล่าง (rounded pill, shadow); placeholder แบบ “What would you like to change or create?”; **Enter** สร้าง workflow / **Shift+Enter** ขึ้นบรรทัดใหม่; ปุ่ม **+** เปิด Popover “Try an example”; เลือก **GPT-4o** หรือ **GPT-4o mini** ผ่าน `generateWorkflowFromPrompt(..., { modelId })`; ตอนกำลังคิดแสดง **กรอบแดง + ring** และ `aria-busy`
 - **Editor UX** — รวมรายการ node ทั้งหมดใน Sheet ขวา *“What triggers this workflow?”* พร้อมค้นหาและหมวดหมู่; แหล่งข้อมูลเดียวที่ `src/features/editor/lib/node-catalog.tsx`; เพิ่ม node จากปุ่ม **+** บน canvas หรือจาก **Initial node**
+- **Editor Testing Tools** — panel ด้านขวารองรับ **Pinned mock output** ต่อ node แล้ว; ปุ่ม execute ส่ง `pinnedData` + `startNodeId`; Inngest execution plan จะ inject mock output เข้าสู่ context และรองรับ **Debug mode** แบบเริ่มรันจาก node ที่เลือก
+- **AI Workflow Assistant** — AI dialog รองรับ 3 โหมดคือ **Generate**, **Suggestions**, และ **Workflow Chat**; ใช้ OpenAI credentials ที่เก็บในระบบ; apply workflow changes กลับเข้า editor state โดยตรงแทนการเขียนทับผ่าน React Flow store
+- **AI Error Auto-fix** — หน้า execution detail ของงานที่ fail มีปุ่ม **Auto-fix with AI** แล้ว; วิเคราะห์ error + stack trace + workflow graph และเสนอ fix พร้อม apply กลับเข้า workflow ได้ทันที
+- **Trigger Runtime** — เพิ่ม **EMAIL_TRIGGER** และ **ERROR_TRIGGER** ครบทั้ง node catalog, validator, docs, AI prompt generation, executor registry และ Inngest runtime; email trigger poll IMAP inbox แบบ dedupe ด้วย stable event id, ส่วน error trigger dispatch workflow อื่นอัตโนมัติเมื่อ execution fail
 - **React Flow** — ห่อ `ReactFlowProvider` ให้ `useReactFlow()` / `useNodeDrop()` ทำงานถูก context (แก้ error zustand provider)
 - **Inngest Realtime** — subscription token แบบ opt-in ด้วย `NEXT_PUBLIC_INNGEST_REALTIME_ENABLED=true` (ค่าเริ่มต้นปิดเพื่อไม่ให้ dev โดน 401 เมื่อยังไม่ตั้ง signing key); ดู `.env.example`
 - **Build / deps** — ต้อง `npm install` ให้ครบเมื่อมี dependency ใหม่ (เช่น `@better-auth/infra`)
@@ -35,8 +39,8 @@
 - [x] **Multi-select Nodes** — เลือกหลาย node พร้อมกัน
 - [x] **Sticky Notes** — เพิ่ม note/comment บน canvas เพื่อ documentation
 - [x] **Keyboard Shortcuts** — shortcut สำหรับ canvas operations
-- [ ] **Data Pinning / Mocking** — test node โดยใช้ fixed data โดยไม่ต้องรัน live
-- [ ] **Debug Mode** — re-run workflow จาก node ที่ต้องการได้เลย
+- [x] **Data Pinning / Mocking** — test node โดยใช้ fixed data โดยไม่ต้องรัน live
+- [x] **Debug Mode** — re-run workflow จาก node ที่ต้องการได้เลย
 
 ---
 
@@ -49,8 +53,8 @@
 - [x] **WEBHOOK_TRIGGER** — รับ HTTP webhook จาก external service ใดก็ได้
 - [x] **GOOGLE_FORM_TRIGGER** — built-in form builder สร้าง form แล้วรับ submission ได้เลย
 - [x] **STRIPE_TRIGGER** — trigger เมื่อ Stripe event เกิดขึ้น
-- [ ] **EMAIL_TRIGGER** — trigger เมื่อรับ email ใหม่ (IMAP)
-- [ ] **ERROR_TRIGGER** — trigger เมื่อ workflow อื่น fail
+- [x] **EMAIL_TRIGGER** — trigger เมื่อรับ email ใหม่ (IMAP)
+- [x] **ERROR_TRIGGER** — trigger เมื่อ workflow อื่น fail
 
 **Logic & Flow Control**
 - [x] **IF / SWITCH** — แตก flow ตาม condition
@@ -135,9 +139,9 @@
 - [x] **Floating composer UI** — แถบด้านล่างกลางจอ (Dialog + pill) แทนกล่อง modal เดิม
 - [x] **Model picker (generation)** — เลือก `gpt-4o` / `gpt-4o-mini` ตอนเรียก `generateWorkflowFromPrompt`
 - [x] **Generating feedback** — กรอบแดง + ring + `aria-busy` ขณะรอ API
-- [ ] **AI Suggestions** — แนะนำ node ถัดไปที่ควรเพิ่มจาก context ของ workflow
-- [ ] **Workflow Chat** — คุยกับ AI เพื่อแก้ไข / ปรับ workflow ผ่าน natural language
-- [ ] **Auto-fix Errors** — AI วิเคราะห์ execution error แล้วเสนอวิธีแก้อัตโนมัติ
+- [x] **AI Suggestions** — แนะนำ node ถัดไปที่ควรเพิ่มจาก context ของ workflow
+- [x] **Workflow Chat** — คุยกับ AI เพื่อแก้ไข / ปรับ workflow ผ่าน natural language
+- [x] **Auto-fix Errors** — AI วิเคราะห์ execution error แล้วเสนอวิธีแก้อัตโนมัติ
 
 ---
 

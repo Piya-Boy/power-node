@@ -1,12 +1,15 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import { NodeType } from "@/generated/prisma";
-import { nodeDefaults, getNodeDefaults, hasDefaults } from "./node-defaults";
+import { getNodeDefaults, hasDefaults, nodeDefaults } from "./node-defaults";
 
 describe("Node Defaults", () => {
   it("should have defaults for all non-initial NodeType values", () => {
     const allTypes = Object.values(NodeType).filter(
-      (t) => t !== NodeType.INITIAL && t !== NodeType.SPLIT && t !== NodeType.SUB_WORKFLOW &&
-             t !== NodeType.COMPRESS
+      (t) =>
+        t !== NodeType.INITIAL &&
+        t !== NodeType.SPLIT &&
+        t !== NodeType.SUB_WORKFLOW &&
+        t !== NodeType.COMPRESS,
     );
     for (const type of allTypes) {
       expect(nodeDefaults[type], `Missing defaults for ${type}`).toBeDefined();
@@ -14,10 +17,18 @@ describe("Node Defaults", () => {
   });
 
   it("should have variableName in most node defaults", () => {
-    const typesWithoutVariableName = [NodeType.STICKY_NOTE, NodeType.STOP_ERROR, NodeType.INITIAL];
+    const typesWithoutVariableName: NodeType[] = [
+      NodeType.STICKY_NOTE,
+      NodeType.STOP_ERROR,
+      NodeType.INITIAL,
+    ];
     for (const [type, defaults] of Object.entries(nodeDefaults)) {
       if (typesWithoutVariableName.includes(type as NodeType)) continue;
-      expect(defaults.variableName, `${type} should have variableName`).toBeDefined();
+      if (!defaults) continue;
+      expect(
+        defaults.variableName,
+        `${type} should have variableName`,
+      ).toBeDefined();
     }
   });
 
@@ -36,7 +47,9 @@ describe("Node Defaults", () => {
     });
 
     it("should apply overrides", () => {
-      const defaults = getNodeDefaults(NodeType.HTTP_REQUEST, { method: "POST" });
+      const defaults = getNodeDefaults(NodeType.HTTP_REQUEST, {
+        method: "POST",
+      });
       expect(defaults.method).toBe("POST");
     });
 

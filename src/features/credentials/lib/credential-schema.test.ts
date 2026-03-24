@@ -1,17 +1,20 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import { CredentialType } from "@/generated/prisma";
 import {
   credentialSchemas,
   getCredentialSchema,
-  validateCredentialData,
   getRequiredCredentialTypes,
+  validateCredentialData,
 } from "./credential-schema";
 
 describe("Credential Schema", () => {
   it("should have schemas for all credential types", () => {
     const allTypes = Object.values(CredentialType);
     for (const type of allTypes) {
-      expect(credentialSchemas[type], `Missing schema for ${type}`).toBeDefined();
+      expect(
+        credentialSchemas[type],
+        `Missing schema for ${type}`,
+      ).toBeDefined();
     }
   });
 
@@ -29,7 +32,14 @@ describe("Credential Schema", () => {
   });
 
   it("should have valid field types", () => {
-    const validTypes = ["text", "password", "url", "email", "number", "textarea"];
+    const validTypes = [
+      "text",
+      "password",
+      "url",
+      "email",
+      "number",
+      "textarea",
+    ];
     for (const schema of Object.values(credentialSchemas)) {
       for (const field of schema.fields) {
         expect(validTypes).toContain(field.type);
@@ -56,12 +66,19 @@ describe("Credential Schema", () => {
     });
 
     it("should pass valid OpenAI data", () => {
-      const errors = validateCredentialData(CredentialType.OPENAI, { apiKey: "sk-test" });
+      const errors = validateCredentialData(CredentialType.OPENAI, {
+        apiKey: "sk-test",
+      });
       expect(errors).toHaveLength(0);
     });
 
     it("should validate SMTP requires host, port, user, pass", () => {
       const errors = validateCredentialData(CredentialType.SMTP, {});
+      expect(errors.length).toBe(4); // host, port, user, pass
+    });
+
+    it("should validate IMAP requires host, port, user, pass", () => {
+      const errors = validateCredentialData(CredentialType.IMAP, {});
       expect(errors.length).toBe(4); // host, port, user, pass
     });
 
@@ -76,12 +93,16 @@ describe("Credential Schema", () => {
     });
 
     it("should handle null values as missing", () => {
-      const errors = validateCredentialData(CredentialType.OPENAI, { apiKey: null });
+      const errors = validateCredentialData(CredentialType.OPENAI, {
+        apiKey: null,
+      });
       expect(errors.length).toBeGreaterThan(0);
     });
 
     it("should handle empty string as missing", () => {
-      const errors = validateCredentialData(CredentialType.GITHUB_TOKEN, { token: "" });
+      const errors = validateCredentialData(CredentialType.GITHUB_TOKEN, {
+        token: "",
+      });
       expect(errors.length).toBeGreaterThan(0);
     });
   });
