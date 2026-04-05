@@ -38,6 +38,7 @@ Key Node Type Descriptions:
 - CHAT_TRIGGER: Triggered by a chat message
 - EMAIL_TRIGGER: Polls an IMAP inbox for matching email
 - ERROR_TRIGGER: Runs when another workflow fails
+- MCP_SERVER: Calls a tool on an external MCP server (data: { variableName, serverUrl, toolName, toolArgs, auth })
 - HTTP_REQUEST: Makes HTTP requests (data: { variableName, endpoint, method, body })
 - OPENAI: AI text generation (data: { variableName, systemPrompt, userPrompt })
 - ANTHROPIC: AI text generation (data: { variableName, systemPrompt, userPrompt })

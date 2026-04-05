@@ -29,6 +29,7 @@ import {
   RepeatIcon,
   RouteIcon,
   SendIcon,
+  ServerIcon,
   SparklesIcon,
   SplitIcon,
   StickyNoteIcon,
@@ -384,6 +385,14 @@ const integrationNodes: NodeTypeOption[] = [
     label: "MySQL",
     description: "Execute SQL on MySQL",
     icon: DatabaseIcon,
+    category: "integration",
+  },
+  // Phase 27: MCP
+  {
+    type: NodeType.MCP_SERVER,
+    label: "MCP Server",
+    description: "Call a tool on an external MCP server",
+    icon: ServerIcon,
     category: "integration",
   },
 ];

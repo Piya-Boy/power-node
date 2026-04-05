@@ -36,6 +36,8 @@ import { summarizationExecutor } from "../components/summarization/executor";
 // Phase 3: Integrations
 import { telegramExecutor } from "../components/telegram/executor";
 import { textClassifierExecutor } from "../components/text-classifier/executor";
+// Phase 27: MCP
+import { mcpServerExecutor } from "../components/mcp-server/executor";
 import type { NodeExecutor } from "../types";
 
 // No-op executor for nodes that don't execute (e.g., sticky notes, placeholder nodes)
@@ -99,6 +101,8 @@ export const executorRegistry: Record<NodeType, NodeExecutor> = {
   [NodeType.AI_TRANSFORM]: aiTransformExecutor,
   [NodeType.SUMMARIZATION]: summarizationExecutor,
   [NodeType.CHAT_TRIGGER]: chatTriggerExecutor,
+  // Phase 27: MCP
+  [NodeType.MCP_SERVER]: mcpServerExecutor,
 };
 
 export const getExecutor = (type: NodeType): NodeExecutor => {

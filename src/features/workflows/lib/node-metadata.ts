@@ -556,6 +556,17 @@ export const nodeMetadataMap: Record<string, NodeMetadata> = {
     outputs: 1,
     icon: "AlignLeft",
   },
+  // Phase 27: MCP
+  [NodeType.MCP_SERVER]: {
+    type: NodeType.MCP_SERVER,
+    label: "MCP Server",
+    description: "Call a tool on an external MCP server",
+    category: "integration",
+    color: "#3b82f6",
+    inputs: 1,
+    outputs: 1,
+    icon: "Server",
+  },
 };
 
 export function getNodeMetadata(type: string): NodeMetadata | undefined {
