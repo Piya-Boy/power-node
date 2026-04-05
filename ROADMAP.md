@@ -292,7 +292,7 @@
 - [x] **Custom Node SDK** — node definition schema + validation + search + groupByCategory
 - [x] **White-labeling** — เปลี่ยน branding สำหรับ reseller / embed ในแอปอื่น
 - [x] **Embed Mode** — embed PowerNode editor ใน application อื่นได้
-- [ ] **Mobile App** — ดู execution status และ approve/reject workflow จาก mobile
+- [x] **Mobile App** — ดู execution status และ approve/reject workflow จาก mobile
 
 ---
 
