@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Provider } from 'jotai'
 import { TRPCReactProvider } from "@/trpc/client";
@@ -20,6 +20,19 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "PowerNode",
   description: "PowerNode - Workflow Automation Platform",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "PowerNode",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#000000",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
 };
 
 export default function RootLayout({
