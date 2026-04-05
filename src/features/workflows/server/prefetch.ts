@@ -16,3 +16,10 @@ export const prefetchWorkflows = (params: Input) => {
 export const prefetchWorkflow = (id: string) => {
   return prefetch(trpc.workflows.getOne.queryOptions({ id }));
 };
+
+/**
+ * Prefetch workflow insights dashboard data
+ */
+export const prefetchWorkflowInsights = (windowDays = 30) => {
+  return prefetch(trpc.workflows.getInsights.queryOptions({ windowDays }));
+};
