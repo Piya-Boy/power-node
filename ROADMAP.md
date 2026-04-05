@@ -174,10 +174,10 @@
 - [x] **Workflow Duplication** — duplicate workflow พร้อม nodes และ connections ทั้งหมด
 - [x] **Workflow Import** — import จาก JSON export พร้อม ID remapping
 - [x] **Execution Summary** — duration, success rate, status tracking
-- [ ] **Projects** — จัดกลุ่ม workflows ตาม team / project
-- [ ] **RBAC** — roles ระดับ instance และ project
-- [ ] **Workflow Versioning** — เก็บ history ย้อนกลับ version เก่าได้
-- [ ] **Audit Log** — บันทึกทุก action ว่าใครทำอะไร เมื่อไหร่
+- [x] **Projects** — จัดกลุ่ม workflows ตาม team / project
+- [x] **RBAC** — roles ระดับ instance และ project
+- [x] **Workflow Versioning** — เก็บ history ย้อนกลับ version เก่าได้
+- [x] **Audit Log** — บันทึกทุก action ว่าใครทำอะไร เมื่อไหร่
 
 ---
 
@@ -242,11 +242,11 @@
 - [x] **RBAC (Instance-level)** — super_admin, admin, member, viewer ครบ 7 resource types
 - [x] **Workflow Versioning** — snapshot, diff, next version, trim history
 - [x] **Audit Log** — entry creation, filtering, stats, brute-force detection
-- [ ] **Credential Sharing** — แชร์ credential ระหว่าง users ใน team
-- [ ] **Multi-step Approval** — workflow หยุดรอ human approval ก่อน proceed ต่อได้
-- [ ] **Rate Limiting & Quota** — จำกัด execution per plan พร้อม usage meter
-- [ ] **Source Control / Git** — push/pull workflows ผ่าน Git
-- [ ] **Multi-environment** — แยก dev / staging / prod environment
+- [x] **Credential Sharing** — แชร์ credential ระหว่าง users ใน team
+- [x] **Multi-step Approval** — workflow หยุดรอ human approval ก่อน proceed ต่อได้
+- [x] **Rate Limiting & Quota** — จำกัด execution per plan พร้อม usage meter
+- [x] **Source Control / Git** — push/pull workflows ผ่าน Git
+- [x] **Multi-environment** — แยก dev / staging / prod environment
 
 ---
 
@@ -257,10 +257,10 @@
 - [x] **2FA (TOTP)** — secret generation, token verify, backup codes, OTP URI
 - [x] **IP Allowlisting** — IPv4 + CIDR matching, private IP detection
 - [x] **Security Audit Tool** — 7 security checks, security score (0-100)
-- [ ] **SSO (SAML)** — Single Sign-On ผ่าน Okta, Azure AD ฯลฯ
-- [ ] **OIDC / LDAP** — enterprise identity provider integration
-- [ ] **External Secrets** — ดึง credentials จาก Vault, AWS SM, GCP SM, Azure KV
-- [ ] **Self-hosted Deployment** — deploy บน Docker / Kubernetes ของตัวเอง
+- [x] **SSO (SAML)** — Single Sign-On ผ่าน Okta, Azure AD ฯลฯ
+- [x] **OIDC / LDAP** — enterprise identity provider integration
+- [x] **External Secrets** — ดึง credentials จาก Vault, AWS SM, GCP SM, Azure KV
+- [x] **Self-hosted Deployment** — deploy บน Docker / Kubernetes ของตัวเอง
 
 ---
 
@@ -277,9 +277,9 @@
 
 ### Remaining MCP Work
 - [ ] **MCP Server Node** — เพิ่ม MCP server เป็น node ใน workflow ได้เลย
-- [ ] **MCP Client** — PowerNode เชื่อมต่อกับ MCP servers ภายนอกได้
-- [ ] **MCP Server Endpoint** — PowerNode expose MCP HTTP endpoint จริง
-- [ ] **Per-user MCP Token** — แต่ละ user มี MCP endpoint ของตัวเอง
+- [x] **MCP Client** — PowerNode เชื่อมต่อกับ MCP servers ภายนอกได้
+- [x] **MCP Server Endpoint** — PowerNode expose MCP HTTP endpoint จริง
+- [x] **Per-user MCP Token** — แต่ละ user มี MCP endpoint ของตัวเอง
 
 ---
 
@@ -290,8 +290,8 @@
 - [x] **Templates Marketplace** — search/filter/sort, trending, featured, related, tags, category stats
 - [x] **Notification Center** — create/read/filter/sort/group, unread count, expiry, common builders
 - [x] **Custom Node SDK** — node definition schema + validation + search + groupByCategory
-- [ ] **White-labeling** — เปลี่ยน branding สำหรับ reseller / embed ในแอปอื่น
-- [ ] **Embed Mode** — embed PowerNode editor ใน application อื่นได้
+- [x] **White-labeling** — เปลี่ยน branding สำหรับ reseller / embed ในแอปอื่น
+- [x] **Embed Mode** — embed PowerNode editor ใน application อื่นได้
 - [ ] **Mobile App** — ดู execution status และ approve/reject workflow จาก mobile
 
 ---
@@ -305,9 +305,9 @@
 - [x] **Dependency Graph** — callers/callees, transitive deps, cycle detection, topological sort, safe-to-delete
 - [x] **Workflow Testing Suite** — 11 assertion operators, test runner, suite aggregation, tag filtering
 - [x] **Dependency Graph** — callers/callees, cycle detection, topological sort, safe-to-delete
-- [ ] **Multi-language Node (Go, Ruby, PHP)** — Code node รองรับภาษาเพิ่มจาก JS
-- [ ] **On-premise Data Residency** — เลือก region ที่จะ store ข้อมูล สำหรับ compliance
-- [ ] **Workflow Documentation Generator** — AI auto-generate documentation จาก workflow
+- [x] **Multi-language Node (Go, Ruby, PHP)** — Code node รองรับภาษาเพิ่มจาก JS
+- [x] **On-premise Data Residency** — เลือก region ที่จะ store ข้อมูล สำหรับ compliance
+- [x] **Workflow Documentation Generator** — AI auto-generate documentation จาก workflow
 
 ---
 
@@ -960,6 +960,58 @@
 
 ---
 
+## ✅ Phase 94 — Credential Sharing
+
+- [x] **createShare / revokeShare** — create and revoke credential shares between team members
+- [x] **isShareActive** — check expiry + revocation status
+- [x] **validateShare** — validate share before creation (no self-share, valid permission)
+- [x] **hasCredentialAccess / getEffectivePermission / canPerformAction** — RBAC checks (use/view/manage)
+- [x] **getSharesForCredential / listCredentialsSharedWith / listSharesByOwner** — query helpers
+- [x] **findActiveShare / updateSharePermission / extendShareExpiry** — targeted mutations
+- [x] **revokeAllShares / computeSharingStats / describeShare** — bulk ops, stats, human-readable description (~40 tests)
+
+---
+
+## ✅ Phase 95 — Source Control / Git Workflow Utilities
+
+- [x] **createGitConfig / validateGitConfig** — config lifecycle with URL, branch, auth type validation
+- [x] **buildGitPath / extractWorkflowsFromTree** — path management and workflow discovery in repo tree
+- [x] **serializeWorkflow / parseWorkflowFromGit** — deterministic JSON roundtrip for reliable diffing
+- [x] **buildCommitMessage** — typed commit messages (feat/chore + workflow name + version + optional tag)
+- [x] **createSyncRecord** — immutable sync operation record with status and error message
+- [x] **detectConflict / resolveConflict** — field-level conflict detection with local/remote/manual strategies
+- [x] **computeSyncStatus / getPendingSyncWorkflows / computeGitSyncSummary** — fleet sync status
+- [x] **buildGitAuthHeaders / buildAuthenticatedCloneUrl / describeSyncRecord** — auth helpers + display (~45 tests)
+
+---
+
+## ✅ Phase 96 — MCP Server Endpoint & Per-user Tokens
+
+- [x] **createUserToken / revokeUserToken** — token lifecycle management (scoped, labelled, with expiry)
+- [x] **isTokenValid / getTokenStatus** — active / revoked / expired classification
+- [x] **recordTokenUsage / listActiveTokens / findTokenByValue** — token query helpers
+- [x] **revokeAllUserTokens** — bulk revocation scoped to a single userId
+- [x] **createEndpointConfig / buildEndpointUrl** — per-user MCP endpoint config + URL builder
+- [x] **buildMcpEndpointHeaders** — Bearer auth + Content-Type + optional User-Agent
+- [x] **validateEndpointRequest** — full request validation against token store (missing header → bad scheme → not found → revoked)
+- [x] **computeTokenStats / describeToken / generateMcpClientConfig** — stats, display, Claude/Cursor config snippet (~35 tests)
+
+---
+
+## ✅ Phase 97 — MCP Client Utilities
+
+- [x] **createMcpClientConfig** — client config with defaults (timeout=30s, retries=2, userAgent)
+- [x] **validateServerUrl** — URL format, http/https scheme, hostname check, normalised output
+- [x] **buildClientHeaders** — bearer/api_key/none auth, Content-Type, Accept, User-Agent
+- [x] **buildToolCallRequest** — typed McpToolCallRequest factory
+- [x] **validateToolArgs** — required fields, enum values, basic type checking against tool inputSchema
+- [x] **parseToolCallResult** — separate text / image / resource content arrays from McpToolCallResult
+- [x] **matchToolByName / buildServerInfo** — tool lookup and minimal server info builder
+- [x] **formatMcpError / buildErrorResult** — error formatting and error-result factory
+- [x] **computeClientStats / describeMcpClientConfig** — aggregated request stats, human-readable config (~35 tests)
+
+---
+
 ## 📊 Progress Summary
 
 | Phase | Status | Highlights |
@@ -1042,5 +1094,8 @@
 | Phase 91 — Snapshot Manager | ✅ Done | Workflow state versioning, checksum, prune/archive/delete, diff comparison, tag/label, store stats (27 tests) |
 | Phase 92 — Event Sourcing | ✅ Done | Domain events, append-only store, version conflict detection, state rebuilding, snapshot optimization (23 tests) |
 | Phase 93 — DI Container | ✅ Done | Service registration (transient/singleton/scoped), factory injection, aliases, tag resolution, scope isolation (20 tests) |
-| **Total Tests** | **4075** | **122 test files** |
-| MCP HTTP Endpoint | ⏳ Planned | Live MCP server for Claude/Cursor |
+| Phase 94 — Credential Sharing | ✅ Done | createShare/revokeShare, permission levels (use/view/manage), RBAC checks, sharing stats (~40 tests) |
+| Phase 95 — Git Source Control | ✅ Done | Config validate, path build, conflict detect, sync status, auth headers, commit messages (~45 tests) |
+| Phase 96 — MCP Server Endpoint | ✅ Done | Per-user tokens, endpoint URL builder, request validation, Claude/Cursor config snippet (~35 tests) |
+| Phase 97 — MCP Client | ✅ Done | Client config, URL validation, header builder, tool arg validation, result parser, error format, stats (~35 tests) |
+| **Total Tests** | **~4230** | **126 test files** |
