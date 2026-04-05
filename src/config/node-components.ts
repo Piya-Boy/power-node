@@ -41,6 +41,8 @@ import { TransformNode } from "@/features/executions/components/transform/node";
 import { WaitDelayNode } from "@/features/executions/components/wait-delay/node";
 import { ChatTriggerNode } from "@/features/triggers/components/chat-trigger/node";
 import { EmailTriggerNode } from "@/features/triggers/components/email-trigger/node";
+// Phase 27: MCP
+import { McpServerNode } from "@/features/executions/components/mcp-server/node";
 import { ErrorTriggerNode } from "@/features/triggers/components/error-trigger/node";
 import { GoogleFormTrigger } from "@/features/triggers/components/google-form-trigger/node";
 import { ManualTriggerNode } from "@/features/triggers/components/manual-trigger/node";
@@ -108,6 +110,8 @@ export const nodeComponents = {
   [NodeType.AI_TRANSFORM]: AiTransformNode,
   [NodeType.SUMMARIZATION]: SummarizationNode,
   [NodeType.CHAT_TRIGGER]: ChatTriggerNode,
+  // Phase 27: MCP
+  [NodeType.MCP_SERVER]: McpServerNode,
 } as const satisfies NodeTypes;
 
 export type RegisteredNodeType = keyof typeof nodeComponents;

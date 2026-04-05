@@ -225,6 +225,14 @@ export const nodeDefaults: Partial<Record<string, Record<string, unknown>>> = {
   [NodeType.STOP_ERROR]: {
     message: "An error occurred",
   },
+  // Phase 27: MCP
+  [NodeType.MCP_SERVER]: {
+    variableName: "mcpResult",
+    serverUrl: "",
+    toolName: "",
+    toolArgs: "{}",
+    auth: { type: "none" },
+  },
 };
 
 /**

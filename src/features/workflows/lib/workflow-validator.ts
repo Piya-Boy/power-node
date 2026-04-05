@@ -270,6 +270,11 @@ export function getNodeValidationRules(nodeType: string): {
         requiredFields: [],
         optionalFields: ["variableName", "sourceWorkflowId", "messageIncludes"],
       };
+    case NodeType.MCP_SERVER:
+      return {
+        requiredFields: ["serverUrl", "toolName"],
+        optionalFields: ["variableName", "toolArgs", "auth"],
+      };
     default:
       return { requiredFields: [], optionalFields: ["variableName"] };
   }

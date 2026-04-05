@@ -205,6 +205,8 @@ enum NodeType {
   AI_TRANSFORM
   SUMMARIZATION
   CHAT_TRIGGER
+  // Phase 27: MCP
+  MCP_SERVER
 }
 
 model Node {

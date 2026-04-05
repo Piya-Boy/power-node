@@ -91,6 +91,7 @@ const NODE_TYPE_DESCRIPTIONS: Record<string, string> = {
   POSTGRESQL_QUERY: "Queries a PostgreSQL database",
   MYSQL_QUERY: "Queries a MySQL database",
   GRAPHQL: "Executes a GraphQL query",
+  MCP_SERVER: "Calls a tool on an external MCP server",
 };
 
 /**

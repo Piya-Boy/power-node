@@ -276,7 +276,7 @@
 - [x] **MCP Auth** — scope-based access (5 scopes), bearer token parsing, token expiry
 
 ### Remaining MCP Work
-- [ ] **MCP Server Node** — เพิ่ม MCP server เป็น node ใน workflow ได้เลย
+- [x] **MCP Server Node** — เพิ่ม MCP server เป็น node ใน workflow ได้เลย
 - [x] **MCP Client** — PowerNode เชื่อมต่อกับ MCP servers ภายนอกได้
 - [x] **MCP Server Endpoint** — PowerNode expose MCP HTTP endpoint จริง
 - [x] **Per-user MCP Token** — แต่ละ user มี MCP endpoint ของตัวเอง
