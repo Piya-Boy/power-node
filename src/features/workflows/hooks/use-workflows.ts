@@ -66,6 +66,14 @@ export const useSuspenseWorkflow = (id: string) => {
   return useSuspenseQuery(trpc.workflows.getOne.queryOptions({ id }));
 };
 
+export const useSuspenseWorkflowInsights = (windowDays = 30) => {
+  const trpc = useTRPC();
+
+  return useSuspenseQuery(
+    trpc.workflows.getInsights.queryOptions({ windowDays }),
+  );
+};
+
 /**
  * Hook to update a workflow name
  */
@@ -107,6 +115,29 @@ export const useUpdateWorkflow = () => {
       },
       onError: (error) => {
         toast.error(`Failed to save workflow: ${error.message}`);
+      },
+    }),
+  );
+};
+
+export const useUpdateWorkflowSettings = () => {
+  const queryClient = useQueryClient();
+  const trpc = useTRPC();
+
+  return useMutation(
+    trpc.workflows.updateSettings.mutationOptions({
+      onSuccess: (data) => {
+        toast.success(`Workflow "${data.name}" settings updated`);
+        queryClient.invalidateQueries(trpc.workflows.getMany.queryOptions({}));
+        queryClient.invalidateQueries(
+          trpc.workflows.getOne.queryOptions({ id: data.id }),
+        );
+        queryClient.invalidateQueries(
+          trpc.workflows.getInsights.queryOptions({ windowDays: 30 }),
+        );
+      },
+      onError: (error) => {
+        toast.error(`Failed to update workflow settings: ${error.message}`);
       },
     }),
   );

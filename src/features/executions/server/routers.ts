@@ -1,9 +1,12 @@
+import { TRPCError } from "@trpc/server";
 import z from "zod";
 import { PAGINATION } from "@/config/constants";
 import {
   autoFixWorkflowExecution,
   type GenerateWorkflowModelId,
 } from "@/features/ai-workflow/server/workflow-assistant";
+import { ExecutionStatus } from "@/generated/prisma";
+import { sendWorkflowExecution } from "@/inngest/utils";
 import prisma from "@/lib/db";
 import { createTRPCRouter, protectedProcedure } from "@/trpc/init";
 
@@ -45,6 +48,39 @@ export const executionsRouter = createTRPCRouter({
         credentialId: input.credentialId,
         modelId: input.modelId as GenerateWorkflowModelId,
       });
+    }),
+  retry: protectedProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const execution = await prisma.execution.findUniqueOrThrow({
+        where: {
+          id: input.id,
+          workflow: {
+            userId: ctx.auth.user.id,
+          },
+        },
+        include: {
+          workflow: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+        },
+      });
+
+      if (execution.status !== ExecutionStatus.FAILED) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Only failed executions can be retried",
+        });
+      }
+
+      await sendWorkflowExecution({
+        workflowId: execution.workflowId,
+      });
+
+      return execution;
     }),
   getMany: protectedProcedure
     .input(

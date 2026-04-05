@@ -115,6 +115,9 @@ model Workflow {
   tags String[] @default([])
   isActive Boolean @default(true)
   webhookSecret String? @unique
+  logStreamingEnabled Boolean @default(false)
+  logStreamingUrl String? @db.Text
+  logStreamingLevel String @default("info")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
